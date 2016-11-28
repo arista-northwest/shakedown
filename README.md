@@ -6,10 +6,8 @@ IPython/Notebook Config
 -----------------------
 
 ```bash
-$ more jupyter_notebook_config.py | grep -v "^#" | grep -v "^$"
-c.NotebookApp.ip = '*'
-
-$ cat ipython_config.py | grep -v "^#" | grep -v "^$"
-c.InteractiveShellApp.exec_lines = ['%autoreload 2']
-c.InteractiveShellApp.extensions = ['autoreload'] #, 'shakedown.magics']
+$ git clone https://github.com/arista-northwest/shakedown.git
+$ cd shakedown
+$ vagrant up
+$ http://localhost:8008  # (username: ubuntu, password: ubuntu)
 ```

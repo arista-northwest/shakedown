@@ -4,6 +4,7 @@
 Vagrant.configure(2) do |config|
   config.vm.box = "ubuntu/xenial32"
   config.vm.network "forwarded_port", guest: 8000, host: 8008
+  config.vm.synced_folder "./notebooks", "/notebooks"
   config.vm.provision "shell", inline: $script
 end
 
@@ -26,7 +27,7 @@ pip3 install numpy scipy matplotlib ipython jupyter pandas sympy nose
 # pip3 install arcomm
 pip3 install --upgrade git+https://github.com/aristanetworks/arcomm.git
 
-cd /vagrant; python setup.py develop
+cd /vagrant; python3 setup.py develop
 
 ###################
 # BEGIN: JupyterHub
@@ -48,7 +49,7 @@ cat > /etc/jupyterhub/jupyterhub_config.py <<EOF
 c.JupyterHub.confirm_no_ssl = True
 c.JupyterHub.ip = '0.0.0.0'
 c.JupyterHub.spawner_class='sudospawner.SudoSpawner'
-c.Spawner.notebook_dir = '~/notebooks'
+c.Spawner.notebook_dir = '/notebooks'
 EOF
 
 cat > /etc/ipython/ipython_config.py <<EOF
@@ -80,18 +81,14 @@ fi
 mkdir /var/jupyterhub
 useradd jupyterhub
 chown jupyterhub /var/jupyterhub
-usermod -G shadow jupyterhub
+usermod -a -G shadow jupyterhub
+usermod -a -G jupyterhub ubuntu
 systemctl daemon-reload
 systemctl start jupyterhub.service
 
 #################
 # END: JupyterHub
 #################
-
-useradd -G jupyterhub -m shakedown
-mkdir -p /home/shakedown/notebooks
-chown -R shakedown /home/shakedown
-echo "shakedown:shakedown" | chpasswd
 
 # install/setup supporting services
 apt-get install -y ntp dnsmasq
