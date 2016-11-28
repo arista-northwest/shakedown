@@ -1,0 +1,367 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+# Copyright (c) 2014 Arista Networks, Inc.  All rights reserved.
+# Arista Networks, Inc. Confidential and Proprietary.
+
+from __future__ import (absolute_import, division, print_function,
+                        unicode_literals)
+import collections
+import os
+import re
+import subprocess
+import signal
+import sys
+import time
+import json
+import operator
+import glob
+import socket
+import string
+
+from pprint import pprint
+
+"""
+Notes:
+
+ticks per second:
+
+    os.sysconf(os.sysconf_names["SC_CLK_TCK"])
+
+        or
+
+    getconf CLK_TCK
+
+    getconf PAGESIZE
+"""
+
+MAX_PERCENT_CPU = 100.0
+
+def signal_handler(signal, frame):
+    sys.exit(0)
+
+signal.signal(signal.SIGINT, signal_handler)
+
+def to_list(data):
+    """Creates a list containing the data as a single element- unless the data
+    is already iterable"""
+
+    if not hasattr(data, '__iter__'):
+        data = [data]
+    return data
+
+def delta(values, key):
+    """Calculate the difference from last call with same key"""
+
+    values = to_list(values)
+    key = str(key)
+
+    previous = delta._delta_cache.get(key, None)
+
+    result = []
+
+    if previous is not None:
+        if len(previous) != len(values):
+            raise ValueError('values should be the same length')
+
+        for prev, val in zip(previous, values):
+
+            result.append(val - prev)
+
+    delta._delta_cache[key] = values
+
+    # pack result with None if no cache was found
+    if not result:
+        result = [None] * len(values)
+
+    return tuple(result)
+delta._delta_cache = {}
+
+def calc_cpu_usage(deltaticks, deltatime):
+    hz = float(os.sysconf(os.sysconf_names['SC_CLK_TCK']))
+    return 100.0 / (hz * deltatime) * deltaticks
+
+# def get_proc_statm(pid, buff):
+#     """Provides information about memory usage, measured in pages.
+#
+#     The columns are:
+#
+#     1. size       total program size (same as VmSize in /proc/[pid]/status)
+#     2. resident   resident set size (same as VmRSS in /proc/[pid]/status)
+#     3. share      shared pages (i.e., backed by a file)
+#     4. text       text (code)
+#     5. lib        library (unused in Linux 2.6)
+#     6. data       data + stack
+#     7. dt         dirty pages (unused in Linux 2.6)
+#     """
+#
+#     name = 'proc.stat.mem'
+#
+#     fields = ['pid', 'size', 'resident', 'share', 'text', 'lib', 'data', 'dt']
+#     values = [pid]
+#     for item in buff.split(" "):
+#         values.append(int(item))
+#
+#     return dict(zip(fields, values))
+
+def get_proc_stat():
+    """kernel/system  statistics.   Varies  with  architecture.   Common entries
+      include:
+    cpu  3357 0 4313 1362393
+        The amount of time, measured in units of USER_HZ  (1/100ths  of  a
+        second  on  most architectures, use sysconf(_SC_CLK_TCK) to obtain
+        the right value), that the system spent in various states:
+
+    1. user   Time spent in user mode.
+    2. nice   Time spent in user mode with low priority (nice).
+    3. system Time spent in system mode.
+    4. idle   Time spent in the idle  task.   This  value  should  be
+              USER_HZ times the second entry in the /proc/uptime pseudo-file.
+    """
+
+    name = 'proc.stat.cpu'
+    hostname = socket.gethostname()
+
+    stats = []
+
+    with open('/proc/stat', 'r') as sth:
+        timestamp = time.time()
+        data = sth.read()
+
+    buff = [l for l in data.splitlines() if re.search(r'cpu\d+', l)]
+
+    fields = ['user', 'nice', 'system', 'idle', 'iowait', 'irq', 'softirq',
+               'steal', 'guest', 'guest_nice']
+
+    for line in buff:
+        values = []
+        line = line.split()
+        cpu = line.pop(0)
+
+        for item in line:
+            try:
+                item = int(item)
+            except ValueError:
+                item = None
+            values.append(item)
+
+        data = dict(zip(fields, values))
+
+        ticks, dtime = delta((data['user'] + data['system'] + data['nice'],
+                              timestamp), key=(name, hostname, cpu))
+
+        pcpu = None
+
+        if None not in (ticks, dtime):
+            pcpu = calc_cpu_usage(ticks, dtime)
+
+        stats.append({
+            'name': name,
+            'tags': {'cpu': cpu, 'hostname': hostname},
+            'timestamp': timestamp,
+            'value': pcpu
+        })
+
+
+    stats = sorted(stats, key=lambda l: l['tags']['cpu'])
+    return stats
+
+def parse_proc_pid_stat(buff):
+    """Parse /proc/[pid]/stat file contents
+
+    The fields map like so:
+
+    1.  pid           process id
+    2.  tcomm         filename of the executable
+    3.  state         state (R is running, S is sleeping, D is sleeping in an
+                      uninterruptible wait, Z is zombie, T is traced or stopped)
+    4.  ppid          process id of the parent process
+    5.  pgrp          pgrp of the process
+    6.  sid           session id
+    7.  tty_nr        tty the process uses
+    8.  tty_pgrp      pgrp of the tty
+    9.  flags         task flags
+    10. min_flt       number of minor faults
+    11. cmin_flt      number of minor faults with child's
+    12. maj_flt       number of major faults
+    13. cmaj_flt      number of major faults with child's
+    14. utime         user mode jiffies
+    15. stime         kernel mode jiffies
+    16. cutime        user mode jiffies with child's
+    17. cstime        kernel mode jiffies with child's
+    18. priority      priority level
+    19. nice          nice level
+    20. num_threads   number of threads
+    21. it_real_value (obsolete, always 0)
+    22. start_time    time the process started after system boot
+    23. vsize         virtual memory size
+    24. rss           resident set memory size
+    25. rsslim        current limit in bytes on the rss
+    26. start_code    address above which program text can run
+    27. end_code      address below which program text can run
+    28. start_stack   address of the start of the main process stack
+    29. esp           current value of ESP
+    30. eip           current value of EIP
+    31. pending       bitmap of pending signals
+    32. blocked       bitmap of blocked signals
+    33. sigign        bitmap of ignored signals
+    34. sigcatch      bitmap of caught signals
+    35. wchan         address where process went to sleep
+    36. 0             (place holder)
+    37. 0             (place holder)
+    38. exit_signal   signal to send to parent thread on exit
+    39. task_cpu      which CPU the task is scheduled on
+    40. rt_priority   realtime priority
+    41. policy        scheduling policy (man sched_setscheduler)
+    42. blkio_ticks   time spent waiting for block IO
+    43. gtime         guest time of the task in jiffies
+    44. cgtime        guest time of the task children in jiffies
+    45. start_data    address above which program data+bss is placed
+    46. end_data      address below which program data+bss is placed
+    47. start_brk     address above which program heap can be expanded with
+                      brk()
+    48. arg_start     address above which program command line is placed
+    49. arg_end       address below which program command line is placed
+    50. env_start      address above which program environment is placed
+    51. env_end       address below which program environment is placed
+    52. exit_code     the thread's exit_code in the form reported by the waitpid
+                      system call
+    """
+
+    fields = ['pid', 'tcomm', 'state', 'ppid', 'pgrp', 'sid', 'tty_nr',
+              'tty_pgrp', 'flags', 'min_flt', 'cmin_flt', 'maj_flt',
+              'cmaj_flt', 'utime', 'stime', 'cutime', 'cstime', 'priority',
+              'nice', 'num_threads', '_it_real_value', 'start_time', 'vsize',
+              'rss', 'rsslim', 'start_code', 'end_code', 'start_stack',
+              'esp', 'eip', 'pending', 'blocked', 'sigign', 'sigcatch',
+              'wchan', '_zero1', '_zero2', 'exit_signal', 'task_cpu',
+              'rt_priority', 'policy', 'blkio_ticks', 'gtime', 'cgtime',
+              'start_data', 'end_data', 'start_brk', 'arg_start', 'arg_end',
+              'env_start', 'env_end', 'exit_code']
+
+    values = []
+
+    for item in buff.split(' '):
+        try:
+            item = int(item)
+        except ValueError:
+            item = re.sub(r'[\(\)]', '', item)
+        values.append(item)
+
+    return dict(zip(fields, values))
+
+
+def get_proc_pid_stats():
+
+    name = 'proc.stat.cpu.task'
+    hostname = socket.gethostname()
+
+    stats = []
+
+    procs = glob.glob('/proc/[0-9]*')
+
+    for path in procs:
+        pid = os.path.split(path)[-1]
+
+        try:
+            with open(os.path.join(path, "stat"), "r") as fhl:
+                timestamp = time.time()
+                stat = fhl.read().strip()
+        except IOError:
+            # process went away before we could read it.
+            continue
+
+        stat = parse_proc_pid_stat(stat)
+
+        ticks, dtime = delta((stat['utime'] + stat['stime'], timestamp),
+                              key=(name, hostname, stat['pid'], stat['tcomm']))
+
+        pcpu = None
+
+        if None not in (ticks, dtime):
+            pcpu = calc_cpu_usage(ticks, dtime)
+
+        stats.append({
+            'name': name,
+            'tags': {'pid': pid, 'hostname': hostname, 'task': stat['tcomm']},
+            'timestamp': timestamp,
+            'value': pcpu
+        })
+
+    stats = sorted(stats, key=operator.itemgetter('value'), reverse=True)
+    #print(stats)
+    return stats
+
+# def print_table(data, max=10):
+#
+#     template = "| {:7d} | {:18s} | {:>7.3f} |"
+#     sep = "+---------+--------------------+---------+"
+#     print(sep)
+#     print("|    PID  |       Name         |  %CPU   |")
+#     print(sep)
+#     #print(data)
+#     lines = []
+#     for _proc in data:
+#         line = template.format(_proc["pid"], _proc["name"], _proc["cpu_usage"])
+#         if _proc['name'] == '_total_':
+#             print(line)
+#             print(sep)
+#         else:
+#             lines.append(line)
+#
+#     print('\n'.join(lines[:max]))
+#     print(sep)
+#     print()
+
+def print_timeseries(data):
+    for item in data:
+        tags = item.get('tags', {})
+        tags = ["{}={}".format(k, v) for k, v in tags.iteritems()]
+        tags = ",".join(tags)
+        value = item['value']
+        if value is None:
+            continue
+        print("{} {} {} {}".format(item['name'], tags, item['timestamp'], value))
+
+def print_json(data):
+     record = {}
+     for item in data:
+         value = item['value']
+         name = item['name']
+         timestamp = item['timestamp']
+
+         record[timestamp] = {'name': name, 'cpu_usage': value}
+
+     print(json.dumps(record))
+
+def parse_args():
+    from argparse import ArgumentParser
+    parser = ArgumentParser(prog="arstat")
+    arg = parser.add_argument
+    arg("-i", "--interval", type=int, default=5, help="Specify polling interval")
+    arg("-n", "--number", type=int, default=10, help="Show top N processes")
+    arg("-j", "--json", action="store_true", help="print in JSON format")
+    #arg("-c", "--per-cpu", action="store_true", help="read cpu usage per processor")
+    #arg("-s", "--sorted", action="store_true", help="sort by cpu usage")
+    args = parser.parse_args()
+    return args
+
+def main():
+    args = parse_args()
+
+    while True:
+        now = time.time()
+        stats = get_proc_stat()
+        stats += get_proc_pid_stats()[:args.number]
+
+        if args.json:
+            print_json(stats)
+        else:
+            print_timeseries(stats)
+        sys.stdout.flush()
+
+        sleep_seconds = float(args.interval) - (time.time() - now)
+        if sleep_seconds > 0:
+            time.sleep(sleep_seconds)
+
+if __name__ == "__main__":
+    main()
