@@ -9,5 +9,8 @@ IPython/Notebook Config
 $ git clone https://github.com/arista-northwest/shakedown.git
 $ cd shakedown
 $ vagrant up
-$ http://localhost:8008  # (username: ubuntu, password: ubuntu)
+
 ```
+
+Browse to: http://localhost:8008
+(username: ubuntu, password: ubuntu)
