@@ -2,8 +2,8 @@ Arista IPython Magics
 =====================
 
 
-IPython/Notebook Config
------------------------
+Booting the Vagrant Image
+-------------------------
 
 ```bash
 $ git clone https://github.com/arista-northwest/shakedown.git

@@ -83,6 +83,7 @@ useradd jupyterhub
 chown jupyterhub /var/jupyterhub
 usermod -a -G shadow jupyterhub
 usermod -a -G jupyterhub ubuntu
+echo "ubuntu:ubuntu" | chpasswd
 systemctl daemon-reload
 systemctl start jupyterhub.service
 
