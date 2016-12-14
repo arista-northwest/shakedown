@@ -72,8 +72,6 @@ class ShakedownMagics(Magics):
         template = jinja2.Template("\n".join(endpoints))
         endpoints = template.render(config).splitlines()
 
-        print(endpoints)
-
         for endpoint in endpoints:
             #
             endpoint, tags = self._preparse_endpoint(endpoint)
