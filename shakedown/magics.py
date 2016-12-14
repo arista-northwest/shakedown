@@ -5,21 +5,15 @@
 Magic functions for Arista device testing
 """
 
-# def skip(line, cell=None):
-#     '''Skips execution of the current line/cell.'''
-#     pass
-#
-# def load_ipython_extension(shell):
-#     '''Registers the skip magic when the extension loads.'''
-#     shell.register_magic_function(skip, 'line_cell')
-#
-# def unload_ipython_extension(shell):
-#     '''Unregisters the skip magic when the extension unloads.'''
-#     del shell.magics_manager.magics['cell']['skip']
-
 import arcomm
-import argparse
+import collections
 import re
+import sys
+import warnings
+import yaml
+
+import jinja2
+
 from getpass import getpass, getuser
 
 from IPython.core import magic_arguments
@@ -32,103 +26,96 @@ class ShakedownMagics(Magics):
 
     def __init__(self, shell, **kwargs):
         super().__init__(shell, **kwargs)
+        self._connections = collections.OrderedDict()
 
-    # @line_cell_magic
-    # def sd(self, line, cell=None):
-    #
-    #     args = self._parse_line_cell(line, cell)
-    #
-    #     #parser = argparse.ArgumentParser()
-    #     #parser.add_argument('-m', '--mute', action="store_true")
-    #     #parser.add_argument('-c', '--capture', action="store_true")
-    #
-    #     cmd = args.pop(0)
-    #
-    #     response = getattr(self, "_sd" + cmd)(args, parser)
-    #
-    #     args = parser.parse_args(args)
-    #
-    #     return response
+    def _find_connections(self, key):
+        connections = []
+        for pkey, item in self._connections.items():
+            if key == pkey or key in item["tags"]:
+                connections.append(item["conn"])
+        return connections
 
-    # @magic_arguments.magic_arguments()
-    # @magic_arguments.argument('hostname', nargs="*",
-    #     help="""Host(s) to connect to""")
-    # @magic_arguments.argument('-u', '--username',
-    #     help="""Username for connection""")
-    # @magic_arguments.argument('-p', '--password', default="",
-    #     help="""Password for connection""")
-    # @line_magic
-    # def sdconnect(self, line):
-    #
-    #     args = magic_arguments.parse_argstring(self.sdconnect, line)
-    #
-    #     for hostname in args.hostname:
-    #         if not args.username:
-    #             args.username = getuser()
-    #
-    #         if not args.password:
-    #             _prompt = "{}@{}'s password: ".format(args.username, hostname)
-    #             args.password = getpass(_prompt) or ""
-    #
-    #         conn = arcomm.connect(hostname, creds=(args.username, args.password))
-    #         self._connections[hostname] = conn
-    #
-    #     #return self._connections
-    #
-    # @magic_arguments.magic_arguments()
-    # @magic_arguments.argument('connections', nargs="*",
-    #     help="""Select existing connection by hostname""")
-    # @magic_arguments.argument('-e', '--encoding', default="text",
-    #     choices=["text", "json"],
-    #     help="""Specify output encoding: json or text""")
-    # @magic_arguments.argument('-c', '--command',
-    #     help="""Commands to send to host""")
-    # @magic_arguments.argument('--no-display', action="store_true",
-    #     help="""Skip printing responses""")
-    # @magic_arguments.argument('--capture', action="store_true", default=True,
-    #     help="""Specify whether to return responses [default: True]""")
-    # @line_cell_magic
-    # def sdsends(self, line, cell=None):
-    #
-    #     args = magic_arguments.parse_argstring(self.sdsends, line)
-    #
-    #     responses = []
-    #     if args.command:
-    #         args.command = [args.command]
-    #     else:
-    #         cell_cmds = [cmd for cmd in cell.splitlines()]
-    #         args.command = cell_cmds
-    #
-    #     commands = [re.sub("(?:^\"|\"$)", "", cmd) for cmd in args.command]
-    #
-    #     for name in args.connections:
-    #         conn = self._connections.get(name, None)
-    #         if not conn:
-    #             raise ValueError("Connection to '{}' does not exist".format(conn))
-    #         response = conn.send(commands, encoding=args.encoding)
-    #         responses.append(response)
-    #
-    #         if not args.no_display:
-    #             # if args.encoding == "text":
-    #             #     print(response.to_yaml())
-    #             # else:
-    #             #     print(response)
-    #             print(response)
-    #
-    #     return responses
+    def _preparse_endpoint(self, endpoint):
+        tags = []
+        if "|" in endpoint:
+            endpoint, tags = endpoint.split("|")
+            tags = tags.split(",")
 
-    # def _parse_line_cell(self, line, cell):
-    #     args = []
-    #     if cell is None:
-    #         # split arguments, preserve spaces within "s
-    #         args = re.findall(r'(?:[^\s,"]|"(?:\\.|[^"])*")+', line)
-    #         # remove surrounding ""s
-    #         args = [re.sub("(?:^\"|\"$)", "", arg) for arg in args]
-    #     else:
-    #         args = self._parse_line_cell(line, cell=None)
-    #         args += cell.splitlines()
-    #
-    #     return args
+        return endpoint, tags
+
+    @needs_local_scope
+    @cell_magic
+    def sdconfig(self,line='', cell=None, local_ns=None):
+        self.shell.user_ns["_sdconfig"] = yaml.load(cell)
+
+    @needs_local_scope
+    @magic_arguments.magic_arguments()
+    @magic_arguments.argument("endpoints", nargs="*",
+        help="Host(s) to connect to")
+    @magic_arguments.argument("-a", "--askpass", action="store_true",
+        help="Force prompt for password.")
+    @magic_arguments.argument("-c", "--clear", action="store_true",
+        help="Clear all connections")
+    @line_cell_magic
+    def sdconnect(self, line, cell=None, local_ns={}):
+        args = magic_arguments.parse_argstring(self.sdconnect, line)
+
+        if args.clear:
+            self._connections = collections.OrderedDict()
+
+        config = self.shell.user_ns.get("_sdconfig", {})
+        endpoints = args.endpoints
+
+        if cell:
+            endpoints += cell.splitlines()
+
+        template = jinja2.Template("\n".join(endpoints))
+        endpoints = template.render(config).splitlines()
+
+        print(endpoints)
+
+        for endpoint in endpoints:
+            #
+            endpoint, tags = self._preparse_endpoint(endpoint)
+            conn = arcomm.connect(endpoint, askpass=args.askpass)
+            tags.append(conn.hostname)
+            self._connections[conn.hostname] = {"conn": conn, "tags": tags}
+
+        return self._connections
+
+    @needs_local_scope
+    @magic_arguments.magic_arguments()
+    @magic_arguments.argument("endpoints", nargs="*",
+        help="Connections to use")
+    @magic_arguments.argument("-e", "--encoding", default="text",
+        choices=["text", "json"],
+        help="Specify output encoding: json or text")
+    @line_cell_magic
+    def sdsend(self, line, cell=None, local_ns={}):
+
+        args = magic_arguments.parse_argstring(self.sdsend, line)
+
+        config = self.shell.user_ns.get("_sdconfig", {})
+
+        commands = []
+        responses = []
+
+        template = jinja2.Template(cell)
+        commands = template.render(config).splitlines()
+
+        for key in args.endpoints:
+            connections = self._find_connections(key)
+
+            for conn in connections:
+                if commands:
+                    response = conn.send(commands, encoding=args.encoding)
+
+                    print(response)
+                    sys.stdout.flush()
+
+                    responses.append(response)
+
+        return responses
 
 def load_ipython_extension(shell):
     '''Registers the skip magic when the extension loads.'''

@@ -249,7 +249,6 @@ def parse_proc_pid_stat(buff):
 
     return dict(zip(fields, values))
 
-
 def get_proc_pid_stats():
 
     name = 'proc.stat.cpu.task'
@@ -261,6 +260,7 @@ def get_proc_pid_stats():
 
     for path in procs:
         pid = os.path.split(path)[-1]
+        pid = int(pid)
 
         try:
             with open(os.path.join(path, "stat"), "r") as fhl:
@@ -280,9 +280,11 @@ def get_proc_pid_stats():
         if None not in (ticks, dtime):
             pcpu = calc_cpu_usage(ticks, dtime)
 
+        tags = {'pid': pid, 'hostname': hostname, 'task': stat['tcomm']}
+
         stats.append({
             'name': name,
-            'tags': {'pid': pid, 'hostname': hostname, 'task': stat['tcomm']},
+            'tags': tags,
             'timestamp': timestamp,
             'value': pcpu
         })
@@ -323,13 +325,15 @@ def print_timeseries(data):
         print("{} {} {} {}".format(item['name'], tags, item['timestamp'], value))
 
 def print_json(data):
-     record = {}
+     record = []
      for item in data:
          value = item['value']
          name = item['name']
+         tags = item.get('tags', {})
          timestamp = item['timestamp']
 
-         record[timestamp] = {'name': name, 'cpu_usage': value}
+         record.append({'name': name, 'timestamp': timestamp,
+                        'cpu_usage': value, 'tags': tags})
 
      print(json.dumps(record))
 
