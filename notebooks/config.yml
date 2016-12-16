@@ -1,0 +1,10 @@
+interface: Ethernet2
+duts:
+  - hostname: veos-sdf-01
+    username: admin
+    password: null
+    tags: sdf,dut,tor,poda
+  - hostname: veos-ord-01
+    username: admin
+    password: null
+    tags: ord,sdut,spine,poda
