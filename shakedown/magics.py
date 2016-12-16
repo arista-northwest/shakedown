@@ -44,9 +44,15 @@ class ShakedownMagics(Magics):
         return endpoint, tags
 
     @needs_local_scope
-    @cell_magic
+    @line_cell_magic
     def sdconfig(self,line='', cell=None, local_ns=None):
-        self.shell.user_ns["_sdconfig"] = yaml.load(cell)
+        if line:
+            with open(line, "r") as cfh:
+                config = cfh.read()
+        elif cell:
+            config = cell
+        self.shell.user_ns["_sdconfig"] = yaml.load(config)
+        # print("[Loaded]\n", config)
 
     @needs_local_scope
     @magic_arguments.magic_arguments()
@@ -79,7 +85,8 @@ class ShakedownMagics(Magics):
             tags.append(conn.hostname)
             self._connections[conn.hostname] = {"conn": conn, "tags": tags}
 
-        return self._connections
+        self.shell.user_ns["_sdconnections"] = self._connections
+        #return self._connections
 
     @needs_local_scope
     @magic_arguments.magic_arguments()
