@@ -17,7 +17,7 @@ Browse to: http://localhost:8008
 
 ### Example Usage
 
-```python
+```
 %%sdconfig
 duts:
   - hostname: 7280cr-01
@@ -30,14 +30,14 @@ duts:
     tags: csp,poda
 ```
 
-```python
+```
 %%sdconnect --clear
 {% for dut in duts -%}
 eapi://{{dut.username}}:{{dut.password}}@{{dut.hostname}}|{{dut.tags}}
 {% endfor %}
 ```
 
-```python
+```
 %%sdsend tor csp
 show version
 ```
