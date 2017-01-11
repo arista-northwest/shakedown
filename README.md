@@ -31,10 +31,11 @@ duts:
 ```
 
 ```
-%%sdconnect --clear
-{% for dut in duts -%}
-eapi://{{dut.username}}:{{dut.password}}@{{dut.hostname}}|{{dut.tags}}
-{% endfor %}
+%sdconnect --clear --section duts
+# %%sdconnect --clear
+# {% for dut in duts -%}
+# eapi://{{dut.username}}:{{dut.password}}@{{dut.hostname}}|{{dut.tags}}
+# {% endfor %}
 ```
 
 ```
