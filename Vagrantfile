@@ -6,7 +6,6 @@ Vagrant.configure(2) do |config|
   config.vm.network "private_network", type: "dhcp"
   config.vm.network "forwarded_port", guest: 8000, host: 8008
   config.vm.synced_folder "./notebooks", "/notebooks"
-  # config.vm.synced_folder "../arcomm", "/arcomm"
   config.vm.provision "shell", inline: $script
 end
 
@@ -29,20 +28,8 @@ pip3 install cryptography --force-reinstall
 pip3 install requests sh paramiko
 pip3 install numpy scipy matplotlib ipython jupyter pandas sympy nose
 pip3 install grpcio grpcio-tools
-
-# pip3 install arcomm
+# get arcomm from github
 pip3 install --upgrade git+https://github.com/aristanetworks/arcomm.git
-
-wget https://storage.googleapis.com/golang/go1.7.4.linux-386.tar.gz
-tar -zxvf go1.7.4.linux-386.tar.gz -C /usr/local/
-
-cat >> /etc/skel/.bashrc <<EOF
-export GOROOT=/usr/local/go
-export GOPATH=\$HOME/go
-export PATH=\$PATH:\$GOROOT/bin:\$GOPATH/bin
-EOF
-
-go get github.com/aristanetworks/goarista/cmd/occli
 
 cd /vagrant; python3 setup.py develop; cd ~
 
@@ -60,7 +47,6 @@ pip3 install git+https://github.com/jupyter/sudospawner
 # https://github.com/jupyterhub/jupyterhub/wiki/Using-sudo-to-run-JupyterHub-without-root-privileges
 
 mkdir /etc/jupyterhub /etc/ipython
-# chown jupyterhub /etc/jupyterhub
 
 cat > /etc/jupyterhub/jupyterhub_config.py <<EOF
 c.JupyterHub.confirm_no_ssl = True
@@ -102,12 +88,30 @@ usermod -a -G shadow jupyterhub
 usermod -a -G jupyterhub ubuntu
 echo "ubuntu:ubuntu" | chpasswd
 systemctl daemon-reload
+systemctl enable jupyterhub.service
 systemctl start jupyterhub.service
-
 #################
 # END: JupyterHub
 #################
 
+######################################
+# Future: Data Collection and Graphing
+######################################
+# wget https://storage.googleapis.com/golang/go1.7.4.linux-386.tar.gz
+# tar -zxvf go1.7.4.linux-386.tar.gz -C /usr/local/
+#
+# cat >> /etc/skel/.bashrc <<EOF
+# export GOROOT=/usr/local/go
+# export GOPATH=\$HOME/go
+# export PATH=\$PATH:\$GOROOT/bin:\$GOPATH/bin
+# EOF
+#
+# go get github.com/aristanetworks/goarista/cmd/occli
+#
+# wget https://dl.influxdata.com/influxdb/releases/influxdb_1.1.1_i386.deb
+# wget https://dl.influxdata.com/telegraf/releases/telegraf_1.1.2_i386.deb
+# dpkg -i influxdb_1.1.1_i386.deb
+# dpkg -i telegraf_1.1.2_i386.deb
 
 #################
 # Uncomment for local lab...
