@@ -21,6 +21,10 @@ from IPython.core.display import display_pretty, display
 from IPython.core.magic import (Magics, magics_class, line_magic, cell_magic,
                                 line_cell_magic, on_off, needs_local_scope)
 
+DEFAULT_TRANSPORT = 'eapi+http'
+DEFAULT_USERNAME = 'admin'
+DEFAULT_PASSWORD = None
+
 @magics_class
 class ShakedownMagics(Magics):
 
@@ -43,15 +47,27 @@ class ShakedownMagics(Magics):
 
         return endpoint, tags
 
+    def _handle_tags(self, tags):
+        if isinstance(tags, (list, tuple)):
+            tags = ",".join(tags)
+
+        return tags
+
     @needs_local_scope
+    @magic_arguments.magic_arguments()
+    @magic_arguments.argument("-f", "--file",
+        help="Load a YAML file from path")
     @line_cell_magic
-    def sdconfig(self,line='', cell=None, local_ns=None):
-        if line:
-            with open(line, "r") as cfh:
+    def sdconfig(self, line='', cell=None, local_ns=None):
+        args = magic_arguments.parse_argstring(self.sdconfig, line)
+        if args.file:
+            with open(args.file, "r") as cfh:
                 config = cfh.read()
         elif cell:
             config = cell
+
         self.shell.user_ns["_sdconfig"] = yaml.load(config)
+
         # print("[Loaded]\n", config)
 
     @needs_local_scope
@@ -62,15 +78,41 @@ class ShakedownMagics(Magics):
         help="Force prompt for password.")
     @magic_arguments.argument("-c", "--clear", action="store_true",
         help="Clear all connections")
+    @magic_arguments.argument("-s", "--section",
+        help="Read from configuration section")
     @line_cell_magic
     def sdconnect(self, line, cell=None, local_ns={}):
+
         args = magic_arguments.parse_argstring(self.sdconnect, line)
 
         if args.clear:
             self._connections = collections.OrderedDict()
 
         config = self.shell.user_ns.get("_sdconfig", {})
-        endpoints = args.endpoints
+
+        endpoints = args.endpoints or []
+
+        if args.section:
+            section = args.section
+
+            try:
+                duts = config[section]
+            except KeyError as esc:
+                raise ValueError("Invalid config section: {}".format(section))
+
+            for dut in duts:
+                transport = dut.get("transport") or DEFAULT_TRANSPORT
+                username = dut.get("username") or DEFAULT_USERNAME
+                password = dut.get("password", DEFAULT_PASSWORD)
+                hostname = dut.get("hostname")
+
+                if not hostname:
+                    raise ValueError("'hostname' parameter is required")
+
+                tags = self._handle_tags(dut.get("tags"))
+                ep = "{}://{}:{}@{}|{}".format(transport, username, password,
+                                               hostname, tags)
+                endpoints.append(ep)
 
         if cell:
             endpoints += cell.splitlines()
