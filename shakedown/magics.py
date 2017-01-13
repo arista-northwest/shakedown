@@ -25,6 +25,19 @@ DEFAULT_TRANSPORT = 'eapi+http'
 DEFAULT_USERNAME = 'admin'
 DEFAULT_PASSWORD = None
 
+def _merge(destination, source):
+    for (key, value) in source.items():
+        if isinstance(value, dict):
+            # get node or create one
+            node = destination.setdefault(key, {})
+            _merge(value, node)
+        elif isinstance(value, (tuple, list)):
+            destination[key] += value
+        else:
+            destination[key] = value
+
+    return destination
+
 @magics_class
 class ShakedownMagics(Magics):
 
@@ -59,16 +72,17 @@ class ShakedownMagics(Magics):
         help="Load a YAML file from path")
     @line_cell_magic
     def sdconfig(self, line='', cell=None, local_ns=None):
+        result = None
         args = magic_arguments.parse_argstring(self.sdconfig, line)
+
         if args.file:
             with open(args.file, "r") as cfh:
-                config = cfh.read()
-        elif cell:
-            config = cell
+                config = yaml.load(cfh.read())
 
-        self.shell.user_ns["_sdconfig"] = yaml.load(config)
+        if cell:
+            config = _merge(config, yaml.load(cell))
 
-        # print("[Loaded]\n", config)
+        self.shell.user_ns["_sdconfig"] = config
 
     @needs_local_scope
     @magic_arguments.magic_arguments()
@@ -112,6 +126,7 @@ class ShakedownMagics(Magics):
                 tags = self._handle_tags(dut.get("tags"))
                 ep = "{}://{}:{}@{}|{}".format(transport, username, password,
                                                hostname, tags)
+
                 endpoints.append(ep)
 
         if cell:
