@@ -11,7 +11,7 @@ import re
 import sys
 import warnings
 import yaml
-
+import re
 import jinja2
 
 from getpass import getpass, getuser
@@ -20,6 +20,8 @@ from IPython.core import magic_arguments
 from IPython.core.display import display_pretty, display
 from IPython.core.magic import (Magics, magics_class, line_magic, cell_magic,
                                 line_cell_magic, on_off, needs_local_scope)
+from IPython.utils.capture import capture_output
+from io import StringIO
 
 DEFAULT_TRANSPORT = 'eapi+http'
 DEFAULT_USERNAME = 'admin'
@@ -32,11 +34,32 @@ def _merge(destination, source):
             node = destination.setdefault(key, {})
             _merge(value, node)
         elif isinstance(value, (tuple, list)):
+            if key not in destination:
+                destination[key] = []
             destination[key] += value
         else:
             destination[key] = value
 
     return destination
+
+class OutputCap(object):
+
+    def __init__(self):
+        self._stdout = None
+        self._sys_stdout = None
+
+    @property
+    def stdout(self):
+        return self._stdout.getvalue()
+
+    def __enter__(self):
+        self._sys_stdout = sys.stdout
+        sys.stdout = self._stdout = StringIO()
+        return self
+
+    def __exit__(self, *exc):
+        sys.stdout = self._sys_stdout
+
 
 @magics_class
 class ShakedownMagics(Magics):
@@ -74,6 +97,8 @@ class ShakedownMagics(Magics):
     def sdconfig(self, line='', cell=None, local_ns=None):
         result = None
         args = magic_arguments.parse_argstring(self.sdconfig, line)
+
+        config = {}
 
         if args.file:
             with open(args.file, "r") as cfh:
@@ -149,10 +174,12 @@ class ShakedownMagics(Magics):
     @magic_arguments.magic_arguments()
     @magic_arguments.argument("endpoints", nargs="*",
         help="Connections to use")
+    @magic_arguments.argument("-t", "--test", action="append")
     @magic_arguments.argument("-e", "--encoding", default="text",
         choices=["text", "json"],
         help="Specify output encoding: json or text")
-    @line_cell_magic
+
+    @cell_magic
     def sdsend(self, line, cell=None, local_ns={}):
 
         args = magic_arguments.parse_argstring(self.sdsend, line)
@@ -171,13 +198,29 @@ class ShakedownMagics(Magics):
             for conn in connections:
                 if commands:
                     response = conn.send(commands, encoding=args.encoding)
-
+                    if args.test:
+                        self._test_responses(args.test, response.responses)
                     print(response)
                     sys.stdout.flush()
 
                     responses.append(response)
 
+        self.shell.user_ns["_sdresponses"] = responses
         return responses
+
+    def _test_responses(self, patterns, responses):
+        match = None
+
+        for response in responses:
+            for pattern in patterns:
+                for line in str(response).splitlines():
+                    match = re.search(pattern, line)
+                    if match:
+                        break
+
+        if not match:
+            sys.stderr.write("Response did not match any patterns")
+
 
 def load_ipython_extension(shell):
     '''Registers the skip magic when the extension loads.'''
