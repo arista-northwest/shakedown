@@ -198,15 +198,17 @@ class ShakedownMagics(Magics):
             for conn in connections:
                 if commands:
                     response = conn.send(commands, encoding=args.encoding)
+
                     if args.test:
                         self._test_responses(args.test, response.responses)
+
                     print(response)
                     sys.stdout.flush()
 
                     responses.append(response)
 
         self.shell.user_ns["_sdresponses"] = responses
-        return responses
+        # return responses
 
     def _test_responses(self, patterns, responses):
         match = None
