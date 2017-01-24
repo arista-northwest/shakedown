@@ -203,7 +203,9 @@ class ShakedownMagics(Magics):
                         self._test_responses(args.test, response.responses)
 
                     print(response)
+
                     sys.stdout.flush()
+                    sys.stderr.flush()
 
                     responses.append(response)
 
@@ -222,7 +224,6 @@ class ShakedownMagics(Magics):
 
         if not match:
             sys.stderr.write("Response did not match any patterns")
-            sys.stderr.flush()
 
 
 def load_ipython_extension(shell):
