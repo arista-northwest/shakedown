@@ -222,6 +222,7 @@ class ShakedownMagics(Magics):
 
         if not match:
             sys.stderr.write("Response did not match any patterns")
+            sys.stderr.flush()
 
 
 def load_ipython_extension(shell):
