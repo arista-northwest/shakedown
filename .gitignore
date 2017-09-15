@@ -158,3 +158,6 @@ $RECYCLE.BIN/
 
 ### Vagrant ###
 .vagrant/
+
+.envrc
+.direnv/
