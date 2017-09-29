@@ -204,6 +204,7 @@ class ShakedownMagics(Magics):
                         self._test_responses(args.test, response.responses)
 
                     if args.output_file:
+                        print("Writing output to {}".format(args.output_file))
                         with open(args.output_file, "w") as fh:
                             fh.write(str(response))
                     else:
