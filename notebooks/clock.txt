@@ -1,0 +1,9 @@
+host: ck214.sjc.aristanetworks.com
+status: ok
+commands:
+  - command: show clock
+    status: ok
+    output: |
+      Fri Sep 29 03:28:42 2017
+      Timezone: UTC
+      Clock source: NTP server (172.22.22.10)

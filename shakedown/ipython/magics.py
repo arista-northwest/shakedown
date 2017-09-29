@@ -178,7 +178,8 @@ class ShakedownMagics(Magics):
     @magic_arguments.argument("-e", "--encoding", default="text",
         choices=["text", "json"],
         help="Specify output encoding: json or text")
-
+    @magic_arguments.argument("-o", "--output-file",
+        help="sendoutput to specified file")
     @cell_magic
     def sdsend(self, line, cell=None, local_ns={}):
 
@@ -202,7 +203,11 @@ class ShakedownMagics(Magics):
                     if args.test:
                         self._test_responses(args.test, response.responses)
 
-                    print(response)
+                    if args.output_file:
+                        with open(args.output_file, "w") as fh:
+                            fh.write(str(response))
+                    else:
+                        print(response)
 
                     sys.stdout.flush()
                     sys.stderr.flush()
