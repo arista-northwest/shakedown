@@ -54,6 +54,7 @@ c.JupyterHub.confirm_no_ssl = True
 c.JupyterHub.ip = '0.0.0.0'
 c.JupyterHub.spawner_class='sudospawner.SudoSpawner'
 c.Spawner.notebook_dir = '/notebooks'
+c.PAMAuthenticator.open_sessions = False
 EOF
 
 cat > /etc/ipython/ipython_config.py <<EOF
