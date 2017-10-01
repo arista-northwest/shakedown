@@ -1,5 +1,6 @@
-#
-#
+# -*- coding: utf-8 -*-
+# Copyright (c) 2016 Arista Networks, Inc.  All rights reserved.
+# Arista Networks, Inc. Confidential and Proprietary.
 
 """
 Magic functions for Arista device testing
@@ -42,23 +43,23 @@ def _merge(destination, source):
 
     return destination
 
-class OutputCap(object):
-
-    def __init__(self):
-        self._stdout = None
-        self._sys_stdout = None
-
-    @property
-    def stdout(self):
-        return self._stdout.getvalue()
-
-    def __enter__(self):
-        self._sys_stdout = sys.stdout
-        sys.stdout = self._stdout = StringIO()
-        return self
-
-    def __exit__(self, *exc):
-        sys.stdout = self._sys_stdout
+# class OutputCap(object):
+#
+#     def __init__(self):
+#         self._stdout = None
+#         self._sys_stdout = None
+#
+#     @property
+#     def stdout(self):
+#         return self._stdout.getvalue()
+#
+#     def __enter__(self):
+#         self._sys_stdout = sys.stdout
+#         sys.stdout = self._stdout = StringIO()
+#         return self
+#
+#     def __exit__(self, *exc):
+#         sys.stdout = self._sys_stdout
 
 
 @magics_class
