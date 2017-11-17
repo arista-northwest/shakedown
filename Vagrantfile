@@ -17,11 +17,15 @@ apt-get update
 # apt-get upgrade -y
 
 apt-get install -y build-essential libssl-dev libffi6 libffi-dev
-apt-get install -y libfreetype6 libfreetype6-dev pkg-config
-apt-get install -y python3.5 python3.5-dev libncurses5-dev
+apt-get install -y libfreetype6 libfreetype6-dev pkg-config libncurses5-dev
+# apt-get install -y python3.5 python3.5-dev
+
+add-apt-repository -y ppa:jonathonf/python-3.6
+apt-get update
+apt-get install -y python3.6 python3.6-dev python3.6-venv
 
 wget https://bootstrap.pypa.io/get-pip.py
-python3.5 get-pip.py
+python3.6 get-pip.py
 rm -f get-pip.py
 
 pip3 install jinja2 pyyaml
@@ -32,7 +36,7 @@ pip3 install grpcio grpcio-tools
 # get arcomm from github
 pip3 install --upgrade git+https://github.com/aristanetworks/arcomm.git
 
-cd /vagrant; python3 setup.py develop; cd ~
+cd /vagrant; python3.6 setup.py develop; cd ~
 
 ###################
 # BEGIN: JupyterHub
@@ -58,7 +62,7 @@ c.PAMAuthenticator.open_sessions = False
 EOF
 
 cat > /etc/ipython/ipython_config.py <<EOF
-c.InteractiveShellApp.extensions = ['arcomm.ipython.magics', 'shakedown.ipython.magics']
+c.InteractiveShellApp.extensions = ['arcomm.ipython.magics', 'shakedown']
 EOF
 
 cat > /lib/systemd/system/jupyterhub.service <<EOF
@@ -96,6 +100,9 @@ systemctl start jupyterhub.service
 # END: JupyterHub
 #################
 
+cat > /etc/hosts <<EOF
+192.168.56.11 veos-1
+EOF
 
 
 #
