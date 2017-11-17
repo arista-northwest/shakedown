@@ -1,10 +1,18 @@
-# interface: Ethernet2
-# duts:
-#   - hostname: veos-sdf-01
-#     username: admin
-#     password: null
-#     tags: sdf,dut,tor,poda
-#  - hostname: veos-ord-01
-#    username: admin
-#    password: null
-#    tags: ord,sdut,spine,poda
+vars:
+    vrf: management
+    upgrade: "flash:EOS-4.19.1F.swi"
+    downgrade: "flash:EOS-4.18.3.1F.swi"
+
+connections:
+  veos-01:
+    creds: [ admin, "" ]
+    protocol: eapi+http
+    tags: [ dut, swan ]
+
+  veos-02:
+    creds: [ admin,  "" ]
+    tags: [ sdut, swan ]
+
+tests:
+    downgrade:
+        testrail_case_id: C12345
