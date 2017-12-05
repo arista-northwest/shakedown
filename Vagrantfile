@@ -100,8 +100,11 @@ systemctl start jupyterhub.service
 # END: JupyterHub
 #################
 
-cat > /etc/hosts <<EOF
+cat >> /etc/hosts <<EOF
 192.168.56.11 veos-1
+192.168.56.12 veos-2
+192.168.56.13 veos-3
+192.168.56.14 veos-4
 EOF
 
 
