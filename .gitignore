@@ -161,3 +161,6 @@ $RECYCLE.BIN/
 
 .envrc
 .direnv/
+
+notebooks/*
+!notebooks/DEMO*
