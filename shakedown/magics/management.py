@@ -39,7 +39,7 @@ class ManagementMagics(Magics):
     @line_magic
     def sdreload(self, line=''):
         args = magic_arguments.parse_argstring(self.sdversion, line)
-        cmd = "bash timeout 30 (sleep 1; sudo reboot) &"
+        cmd = "bash timeout 30 $(sleep 1; sudo reboot) &"
 
         for response in sessions.send(args.endpoints, [cmd]):
             pass
@@ -48,21 +48,21 @@ class ManagementMagics(Magics):
 
         filtered = sessions.filter(args.endpoints)
 
-        util.plush("polling {}\n".format(str([s.hostname for s in filtered])))
+        util.plush("polling {}\n".format(str([s[0] for s in filtered])))
 
         width = 0
         while filtered:
-            for sess in filtered:
-
+            for endpoint, params in filtered:
                 if width >= 80:
                     width = 0
                     util.plush("\n")
-
                 try:
 
-                    _sess = sess.clone(timeout=1)
+                    for response in sessions.send([endpoint], ["show uptime"],
+                                                  timeout=1):
+                        pass
                     util.plush("+")
-                    filtered.remove(sess)
+                    filtered.remove((endpoint, params))
                 except ConnectFailed as e:
                     util.plush(".")
                     pass

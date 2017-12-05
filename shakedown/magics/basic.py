@@ -28,7 +28,7 @@ class BasicMagics(Magics):
 
     @needs_local_scope
     @magic_arguments.magic_arguments()
-    @magic_arguments.argument("file", nargs=1,
+    @magic_arguments.argument("file", nargs="*",
         help="Load a YAML file from path")
     @line_cell_magic
     def sdconfig(self, line='', cell=None, local_ns=None):
@@ -84,17 +84,4 @@ class BasicMagics(Magics):
                 with open(args.output_file, "w") as fh:
                     fh.write(str(response))
             else:
-                util.plush(response)
-
-    # def _test_responses(self, patterns, responses):
-    #     match = None
-    #
-    #     for response in responses:
-    #         for pattern in patterns:
-    #             for line in str(response).splitlines():
-    #                 match = re.search(pattern, line)
-    #                 if match:
-    #                     break
-    #
-    #     if not match:
-    #         sys.stderr.write("Response did not match any patterns")
+                util.plush(str(response))

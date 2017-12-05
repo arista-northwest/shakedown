@@ -62,7 +62,7 @@ class _ConfigSection(collections.MutableMapping):
 
         return self
 
-class _DutsSection(_ConfigSection):
+class _ConnectionsSection(_ConfigSection):
     pass
 
 class _VarsSection(_ConfigSection):
@@ -77,7 +77,7 @@ class Config(collections.MutableMapping):
 
         self._config = {
             'vars': _VarsSection(),
-            'connections': _DutsSection(),
+            'connections': _ConnectionsSection(),
             'tests': _TestsSection()
         }
 
@@ -138,6 +138,6 @@ class Config(collections.MutableMapping):
         return self._config[section].mount(callback)
 
     def __repr__(self):
-        return str(self._config)
+        return str(self.to_dict())
 
 config = Config()

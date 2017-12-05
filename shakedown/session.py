@@ -14,9 +14,6 @@ from shakedown.config import config
 from requests.sessions import ChunkedEncodingError
 
 import arcomm
-# DEFAULT_TRANSPORT = "eapi+http"
-# DEFAULT_USERNAME = "admin"
-# DEFAULT_PASSWORD = ""
 
 class SessionError(Exception):
     pass
@@ -94,25 +91,11 @@ class SessionManager:
         """sends commands to endpoints"""
 
         filtered = self.filter(endpoints)
-        #print("ENDPOINTS:", filtered)
+
         pool = arcomm.batch(filtered, commands, **kwargs)
 
         for response in pool:
             yield response
-        # for session in self.filter(endpoints):
-        #     response = None
-        #     if not session._conn:
-        #         session.connect()
-        #
-        #     try:
-        #         response = session.send(commands, **kwargs)
-        #     except ChunkedEncodingError as e:
-        #         # this occurs when a command causes the switch to go away
-        #         warnings.warn("response interrupted")
-        #         pass
-        #
-        #     yield response
-
 
 sessions = SessionManager()
 
