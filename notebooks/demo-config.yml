@@ -1,0 +1,18 @@
+vars:
+    vrf: management
+    upgrade: "flash:EOS-4.19.1F.swi"
+    downgrade: "flash:EOS-4.18.3.1F.swi"
+
+connections:
+  veos-1:
+    creds: [ admin, "" ]
+    protocol: eapi+http
+    tags: [ dut, swan ]
+
+  veos-2:
+    creds: [ admin,  "" ]
+    tags: [ sdut, swan ]
+
+tests:
+    downgrade:
+        testrail_case_id: C12345
