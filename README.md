@@ -18,28 +18,30 @@ Browse to: http://localhost:8008
 ### Example Usage
 
 ```
-%%sdconfig
-duts:
-  - hostname: 7280cr-01
-    username: admin
-    password: none
-    tags: dut,tor,poda
-  - hostname: 7280cr-02
-    username: admin
-    password: none
-    tags: csp,poda
+%%sdconfig [config-file]
+vars:
+    vrf: management
+    upgrade: "flash:EOS-4.19.1F.swi"
+    downgrade: "flash:EOS-4.18.3.1F.swi"
+
+connections:
+  veos-1:
+    creds: [ admin, "" ]
+    protocol: eapi+http
+    tags: [ dut, tor ]
+
+  veos-2:
+    creds: [ admin,  "" ]
+    tags: [ sdut, spine ]
+
+tests:
+    downgrade:
+        testrail_case_id: C12345
 ```
 
-```
-%sdconnect --clear --section duts
-# %%sdconnect --clear
-# {% for dut in duts -%}
-# eapi://{{dut.username}}:{{dut.password}}@{{dut.hostname}}|{{dut.tags}}
-# {% endfor %}
-```
 
 ```
-%%sdsend tor csp
+%%sdsend tor spine
 show version
 ```
 
@@ -80,10 +82,3 @@ show version
           Uptime:                 2 weeks, 3 days, 4 hours and 17 minutes
           Total memory:           16035752 kB
           Free memory:            11219016 kB
-
-
-
-
-
-
-    [<ResponseStore [ok]>, <ResponseStore [ok]>]
