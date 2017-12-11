@@ -6,7 +6,7 @@ Vagrant.configure(2) do |config|
   config.vm.network "private_network", type: "dhcp"
   config.vm.network "forwarded_port", guest: 8000, host: 8008
   config.vm.network "forwarded_port", guest: 5000, host: 5008
-  config.vm.synced_folder "./notebooks", "/notebooks"
+  config.vm.synced_folder "./examples", "/notebooks"
   config.vm.provision "shell", inline: $script
 end
 
@@ -62,7 +62,7 @@ c.PAMAuthenticator.open_sessions = False
 EOF
 
 cat > /etc/ipython/ipython_config.py <<EOF
-c.InteractiveShellApp.extensions = ['arcomm.ipython.magics', 'shakedown']
+c.InteractiveShellApp.extensions = ['shakedown.ipython.magics']
 EOF
 
 cat > /lib/systemd/system/jupyterhub.service <<EOF

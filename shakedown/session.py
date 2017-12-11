@@ -6,7 +6,7 @@ import collections
 import yaml
 import warnings
 import http.client
-
+import re
 from pprint import pprint
 from shakedown.util import to_list, merge
 from shakedown.config import config
@@ -27,9 +27,9 @@ class SessionManager:
 
         self.reset()
 
-        self._config = config.mount("connections", self._handler)
+        self._config = config.mount("connections", self._handle_notifications)
 
-    def _handler(self, data):
+    def _handle_notifications(self, data):
         """handler is blocking should return immediately"""
 
         action = data["action"]
@@ -54,83 +54,49 @@ class SessionManager:
             if not isinstance(tags, (list, tuple)):
                 tags = tags.split(",")
 
-            #del config["tags"]
-
-        #session = arcomm.Session(endpoint, **config)
-
         self._sessions[endpoint] = (config, tags)
 
     def filter(self, keys):
         """filter connections for hostname or tags"""
 
-        filtered = []
-        # endpoints = []
+        filtered = {}
 
         keys = to_list(keys)
 
         for endpoint, item in self._sessions.items():
             params, tags = item
 
-            # look for matching hostname or common tags
-            if endpoint in keys or set(keys) & set(tags):
-                filtered.append((endpoint, params))
+            tags_ = list(tags)
+            tags_.insert(0, endpoint)
 
-        return filtered
+            for key in keys:
+                pattern = re.compile(key)
+                for f in filter(pattern.match, tags_):
+                    filtered[endpoint] = params
+
+        return list(filtered.items())
 
     def remove(self, endpoints):
         endpoints = to_list(endpoints)
         defunct = []
         for session in self.filter(endpoints):
-            #session.close()
             defunct.append(session.hostname)
 
         for hostname in defunct:
             del self._sessions[hostname]
 
-    def send(self, endpoints, commands, **kwargs):
+    def send(self, endpoints, commands, raise_for_error=False, **kwargs):
         """sends commands to endpoints"""
-
+        responses = []
         filtered = self.filter(endpoints)
 
         pool = arcomm.batch(filtered, commands, **kwargs)
 
         for response in pool:
-            yield response
+            if raise_for_error:
+                response.raise_for_error()
+            responses.append(response)
+
+        return responses
 
 sessions = SessionManager()
-
-def main():
-#     config.merge("""\
-# global:
-#     vrf: management
-#     upgrade: "flash:EOS-4.19.1F.swi"
-#     downgrade: "flash:EOS-4.18.3.1F.swi"
-#
-# duts:
-#   veos-01:
-#     creds: [ admin, "" ]
-#     protocol: eapi+http
-#     tags: [ dut, swan ]
-#
-#   veos-02:
-#     creds: [ admin,  "" ]
-#     tags: [ sdut, swan ]
-#
-# tests:
-#     downgrade:
-#         testrail_case_id: C12345
-#
-#
-# """)
-    config.load("notebooks/config.yml")
-
-    for response in sessions.send("swan", "show hostname"):
-        print(response)
-
-    # sessions.remove("veos-01")
-    #
-    # for response in sessions.send("swan", "show hostname"):
-    #     print(response)
-
-if __name__ == '__main__':
-    main()

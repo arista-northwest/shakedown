@@ -1,6 +1,6 @@
 .git
 .ipynb_checkpoints/*
-/notebooks/*
+/examples/*
 /unused/*
 Dockerfile
 .DS_Store

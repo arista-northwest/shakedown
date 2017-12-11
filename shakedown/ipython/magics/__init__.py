@@ -4,3 +4,7 @@
 
 from .basic import BasicMagics
 from .management import ManagementMagics
+
+def load_ipython_extension(shell):
+    '''Registers the skip magic when the extension loads.'''
+    shell.register_magics(BasicMagics, ManagementMagics)

@@ -4,8 +4,12 @@
 
 __version__ = "0.1.4"
 
-import shakedown.magics as magics
 
-def load_ipython_extension(shell):
-    '''Registers the skip magic when the extension loads.'''
-    shell.register_magics(magics.BasicMagics, magics.ManagementMagics)
+#from . import env
+import os
+
+from . import config
+
+_base_path = os.path.dirname(os.path.abspath(__file__))
+_settings_path = os.path.join(_base_path, "settings.yml")
+config.config.load(_settings_path)

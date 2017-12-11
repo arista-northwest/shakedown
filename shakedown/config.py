@@ -7,8 +7,6 @@ import yaml
 from pprint import pprint
 from shakedown.util import to_list, merge
 
-
-
 class _ConfigSection(collections.MutableMapping):
     def __init__(self):
 
@@ -56,9 +54,10 @@ class _ConfigSection(collections.MutableMapping):
     def _validate(self, key, value):
         pass
 
-    def mount(self, callback):
-        if callback not in self._subscribers:
-            self._subscribers.append(callback)
+    def mount(self, callback=None):
+        if callback:
+            if callback not in self._subscribers:
+                self._subscribers.append(callback)
 
         return self
 
@@ -76,6 +75,7 @@ class Config(collections.MutableMapping):
     def __init__(self):
 
         self._config = {
+            'settings': _ConfigSection(),
             'vars': _VarsSection(),
             'connections': _ConnectionsSection(),
             'tests': _TestsSection()
@@ -121,7 +121,6 @@ class Config(collections.MutableMapping):
         _config = {}
         for section, _data in self._config.items():
             _config[section] = _data.to_dict()
-        #print(_config)
         return _config
 
     def dump(self, **kwargs):
@@ -130,8 +129,7 @@ class Config(collections.MutableMapping):
 
     to_yaml = dump
 
-    def mount(self, section, callback):
-        #print(section, handler)
+    def mount(self, section, callback=None):
         if section not in self._config:
             raise KeyError("ERROR: section '{}' does not exists".format(section))
 

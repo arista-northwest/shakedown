@@ -161,7 +161,3 @@ $RECYCLE.BIN/
 
 .envrc
 .direnv/
-
-notebooks/*
-!notebooks/DEMO*
-!noteboos/demo-*.yml

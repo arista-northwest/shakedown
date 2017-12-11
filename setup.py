@@ -6,8 +6,8 @@ import sys
 import os
 from setuptools import setup, find_packages
 
-if sys.version_info < (3, 4, 0):
-    raise NotImplementedError("Sorry, you need at least Python 3.4 to install.")
+if sys.version_info < (3, 5, 0):
+    raise NotImplementedError("Sorry, you need at least Python 3.5 to install.")
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__)))
 from shakedown import __version__
@@ -29,18 +29,18 @@ setup(
         "Natural Language :: English",
         "Operating System :: OS Independent",
         "Programming Language :: Python",
-        "Programming Language :: Python :: 3.4",
         "Programming Language :: Python :: 3.5",
+        "Programming Language :: Python :: 3.6",
         "Topic :: Software Development :: Libraries :: Python Modules",
         "Topic :: Software Development :: Testing",
         "Topic :: Terminals"
     ],
     packages = find_packages(),
-    url = "https://github.com/mathershifter/shakedown",
+    url = "https://github.com/arista-northwest1/shakedown",
     license = "MIT Licesnse",
-    entry_points = {
-        'console_scripts': [
-            'shakedown = shakedown.entry:main',
-        ]
-    }
+    # entry_points = {
+    #     'console_scripts': [
+    #         'shakedown = shakedown.entry:main',
+    #     ]
+    #}
 )

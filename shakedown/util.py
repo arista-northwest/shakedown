@@ -2,6 +2,7 @@
 # Copyright (c) 2016 Arista Networks, Inc.  All rights reserved.
 # Arista Networks, Inc. Confidential and Proprietary.
 
+import os
 import sys
 
 def to_list(data):
@@ -28,6 +29,17 @@ def merge(destination, source):
             destination[key] = value
 
     return destination
+
+def mkdir(path):
+    """Create a directory and ignore directory already exists errors"""
+    try:
+        os.makedirs(path)
+    except OSError as exc: # Python >2.5
+        import errno
+        if exc.errno == errno.EEXIST and os.path.isdir(path):
+            pass
+        else:
+            raise
 
 def plush(data):
     """print and flush"""

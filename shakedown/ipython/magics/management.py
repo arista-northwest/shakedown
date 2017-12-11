@@ -26,12 +26,8 @@ class ManagementMagics(Magics):
         args = magic_arguments.parse_argstring(self.sdversion, line)
         shell = self.shell
 
-        #print(args.endpoints)
         for response in sessions.send(args.endpoints, ["show version"]):
             util.plush(response)
-            #
-            # sys.stdout.flush()
-            # sys.stderr.flush()
 
     @magic_arguments.magic_arguments()
     @magic_arguments.argument("endpoints", nargs="*",
