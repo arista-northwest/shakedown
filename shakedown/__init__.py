@@ -2,7 +2,7 @@
 # Copyright (c) 2016 Arista Networks, Inc.  All rights reserved.
 # Arista Networks, Inc. Confidential and Proprietary.
 
-__version__ = "0.1.4"
+__version__ = "0.2.0"
 
 
 #from . import env
