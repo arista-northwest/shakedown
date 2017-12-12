@@ -18,12 +18,12 @@ def pytest_addoption(parser):
 
     group = parser.getgroup("autotest", "autotest network device testing")
 
-    group.addoption("--config", action="store", dest="sdconfig", required=True,
+    group.addoption("--config", action="store", dest="sdconfig",
                     metavar="CONFIG")
 
-    group.addoption("--working-dir", action="store", metavar="WORKING_DIR",
-                    help=("base directory for tests, templates and "
-                          "configuration.  By default use current dir"))
+    # group.addoption("--working-dir", action="store", metavar="WORKING_DIR",
+    #                 help=("base directory for tests, templates and "
+    #                       "configuration.  By default use current dir"))
 
     group.addoption("--output-dir", action="store", metavar="OUTPUT_DIR",
                     help="base directory for reports")
@@ -39,8 +39,11 @@ def pytest_configure(config):
     if config.getoption("help"):
         return
 
-    working_dir = config.getoption("working_dir") or os.getcwd()
-    os.chdir(working_dir)
+    if not config.getoption("sdconfig"):
+        pytest.exit("config option is required")
+
+    # working_dir = config.getoption("working_dir") or os.getcwd
+    # os.chdir(working_dir)
 
     with open(config.getoption("sdconfig"), "r") as fh:
         sdconfig.merge(fh.read())
