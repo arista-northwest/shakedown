@@ -7,24 +7,18 @@ title: Defaults Collection
 description: |
     Make sure the DUT is on the correct software version
 
-settings:
-    auto_rollback: true
 """
 import re
 import pytest
 import arcomm
 
-__version__ = "0.1.0"
-
 def test_version(sessions, sdconfig, testconfig):
     """Autotest will scan the class for any methods that start with 'test'."""
-    #print("TESTCONFIG:", testconfig)
-    version = testconfig["software_version"]
 
+    version = testconfig["software_version"]
     response = sessions.send(r"dut", "show version")
 
     for r in response:
-
         assert version in str(r[0].output), \
             "Software version should be {}".format(version)
 
