@@ -38,9 +38,9 @@ setup(
     packages = find_packages(),
     url = "https://github.com/arista-northwest1/shakedown",
     license = "MIT Licesnse",
-    # entry_points = {
-    #     'console_scripts': [
-    #         'shakedown = shakedown.entry:main',
-    #     ]
-    #}
+    entry_points = {
+        'console_scripts': [
+            'autotest = shakedown.autotest.entry:main',
+        ]
+    }
 )
