@@ -42,6 +42,8 @@ def _auto_monkeypatch_send(sessions, request):
 
     def _restore_send():
         sessions.send = sessions._session_monitor_send
+        del sessions._session_monitor_send
+
     request.addfinalizer(_restore_send)
 
     sessions._session_monitor_send = sessions.send
