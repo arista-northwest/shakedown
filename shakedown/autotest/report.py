@@ -8,7 +8,7 @@ from getpass import getuser
 from collections import OrderedDict
 from shakedown.util import mkdir
 
-item_kinds = [
+styles = [
     "h1",
     "h2",
     "h3",
@@ -45,11 +45,11 @@ class ReportSection:
 
         self._outcome = value
 
-    def append(self, kind, content):
-        if kind not in item_kinds:
-            raise ValueError("Unrecognized item kind '{}'".format(kind))
+    def append(self, style, content):
+        if style not in styles:
+            raise ValueError("Unrecognized item style '{}'".format(style))
 
-        self.items.append({"format": kind, "content": content})
+        self.items.append({"style": style, "content": content})
 
     def to_dict(self):
         return {
@@ -75,7 +75,7 @@ class Report:
         path = os.path.expanduser(path)
         mkdir(os.path.dirname(path))
         with codecs.open(path, "w", encoding="utf-8") as fh:
-            json.dump(self.to_json(), fh, indent=2, separators=(',', ': '))
+            fh.write(self.to_json())
 
     def get_section(self, section_id):
 
@@ -84,7 +84,7 @@ class Report:
 
         return self._sections[section_id]
 
-    def to_json(self):
+    def to_json(self, indent=2, separators=(',', ': ')):
 
         result = OrderedDict(heading=self.heading)
         result["sections"] = []
@@ -94,6 +94,6 @@ class Report:
             section["id"] = sid
             result["sections"].append(section)
 
-        return result
+        return json.dumps(result, indent=indent, separators=separators)
 
 report_store = {}
