@@ -89,9 +89,9 @@ class Report:
         result = OrderedDict(heading=self.heading)
         result["sections"] = []
 
-        for sid, section in self._sections.items():
+        for section_id, section in self._sections.items():
             section = section.to_dict()
-            section["id"] = sid
+            section["id"] = section_id
             result["sections"].append(section)
 
         return json.dumps(result, indent=indent, separators=separators)
