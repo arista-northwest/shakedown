@@ -4,6 +4,7 @@
 
 import os
 import pytest
+import json
 
 from shakedown.config import config as sdconfig
 from shakedown.session import sessions
@@ -11,6 +12,7 @@ from shakedown.autotest import util
 
 from shakedown.autotest.report import report_store
 
+reportlog = []
 #from pprint import pprint
 
 def pytest_addoption(parser):
@@ -21,6 +23,7 @@ def pytest_addoption(parser):
     group.addoption("--config", action="store", dest="sdconfig",
                     metavar="CONFIG")
 
+    # does not work...
     # group.addoption("--working-dir", action="store", metavar="WORKING_DIR",
     #                 help=("base directory for tests, templates and "
     #                       "configuration.  By default use current dir"))
@@ -28,7 +31,7 @@ def pytest_addoption(parser):
     group.addoption("--output-dir", action="store", metavar="OUTPUT_DIR",
                     help="base directory for reports")
 
-    group.addoption("--publish", action="append", metavar="PUBLISH",
+    group.addoption("--publish", action="append", default=[], metavar="PUBLISH",
                      help="Publish report to specified service")
 
     group.addoption("--option", help="user defined extra options")
@@ -51,6 +54,11 @@ def pytest_configure(config):
 def pytest_unconfigure(config):
     """pytest hook - called after all tests have completed"""
 
+    output_dir = config.getoption("output_dir")
+    path = os.path.join(output_dir, "reportlog.json")
+    with open(path, "w") as fh:
+        fh.write(json.dumps(reportlog, indent=2, separators=(',', ': ')))
+
 def pytest_runtest_setup(item):
     """run before executing test"""
 
@@ -64,6 +72,14 @@ def pytest_runtest_teardown(item):
         sdreport = report_store[path]
         section = sdreport.get_section(nodeid)
         section.description = item.function.__doc__
+
+        # keep a log of outcomes for index page
+        reportlog.append({
+            "path": path,
+            "nodeid": nodeid,
+            "description": section.description,
+            "outcome": section.outcome
+        })
 
 def pytest_runtest_logreport(report):
     """Call after the test completes to update the outcome and trace"""

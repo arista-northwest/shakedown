@@ -30,7 +30,7 @@ outcomes = [
 class ReportSection:
     def __init__(self):
         self.description = None
-        self.items = []
+        self.elements = []
 
         self._outcome = None
 
@@ -45,17 +45,18 @@ class ReportSection:
 
         self._outcome = value
 
-    def append(self, style, content):
+    def append(self, style, content, **kwargs):
         if style not in styles:
             raise ValueError("Unrecognized item style '{}'".format(style))
 
-        self.items.append({"style": style, "content": content})
+        self.elements.append({"style": style, "content": content,
+                              "keywords": kwargs})
 
     def to_dict(self):
         return {
             "description": self.description,
             "outcome": self.outcome,
-            "items": self.items,
+            "elements": self.elements,
         }
 
 class Report:
@@ -71,11 +72,11 @@ class Report:
 
         self._sections = OrderedDict()
 
-    def save(self, path):
-        path = os.path.expanduser(path)
-        mkdir(os.path.dirname(path))
-        with codecs.open(path, "w", encoding="utf-8") as fh:
-            fh.write(self.to_json())
+    # def save(self, path):
+    #     path = os.path.expanduser(path)
+    #     mkdir(os.path.dirname(path))
+    #     with codecs.open(path, "w", encoding="utf-8") as fh:
+    #         fh.write(self.to_json())
 
     def get_section(self, section_id):
 
@@ -84,7 +85,7 @@ class Report:
 
         return self._sections[section_id]
 
-    def to_json(self, indent=2, separators=(',', ': ')):
+    def to_dict(self):
 
         result = OrderedDict(heading=self.heading)
         result["sections"] = []
@@ -94,6 +95,6 @@ class Report:
             section["id"] = section_id
             result["sections"].append(section)
 
-        return json.dumps(result, indent=indent, separators=separators)
+        return result #json.dumps(result, indent=indent, separators=separators)
 
 report_store = {}
