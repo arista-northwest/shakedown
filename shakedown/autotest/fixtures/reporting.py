@@ -7,8 +7,12 @@ import pytest
 import yaml
 
 from shakedown.autotest.report import Report, report_store
+from shakedown.util import mkdir
 from shakedown.autotest import util
-__all__ = ["sdreport"]
+
+from shakedown.autotest import publishers
+
+__all__ = ["sdreport", "sdreportsection"]
 
 @pytest.fixture(scope="module", autouse=True)
 def sdreport(request):
@@ -27,16 +31,33 @@ def sdreport(request):
 
     def _finish():
 
-        output_dir = request.config.getoption('output_dir')
+        output_dir = request.config.getoption("output_dir")
+        pub_names = request.config.getoption("publish")
 
         if output_dir:
             output_dir = os.path.expanduser(output_dir)
-            ofile = os.path.join(output_dir, request.module.__name__,
-                                     "report.json")
-            report.save(ofile)
+            output_dir = os.path.join(output_dir, request.module.__name__)
+            mkdir(output_dir)
+
+            data = report.to_dict()
+
+            for name in pub_names:
+
+                publisher = getattr(publishers, name)
+                publisher.save(data, output_dir)
 
         del report_store[path]
 
     request.addfinalizer(_finish)
 
     return report
+
+@pytest.fixture(scope="function")
+def sdreportsection(request):
+
+    nodeid = request.node.nodeid
+    path, _, _ = util.split_nodeid(nodeid)
+
+    sdreport = report_store[path]
+
+    return sdreport.get_section(nodeid)
