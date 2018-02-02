@@ -22,7 +22,8 @@ def test_version(sessions, sdconfig, testconfig, sdreportsection):
         assert version in str(r[0].output), \
             "Software version should be {}".format(version)
 
-    sdreportsection.append("link", "http://httpbin.org/", text="httpbin", title="link to httpbin")
+    sdreportsection.link("http://httpbin.org/", text="httpbin",
+                        title="link to httpbin")
 
 def test_bogus(sessions, sdconfig, testconfig):
     """Run a bogus command. should throw error"""
