@@ -9,8 +9,6 @@ import re
 from shakedown.config import config as sdconfig_
 from shakedown.session import sessions as sessions_
 
-__all__ = ["sdconfig", "sessions", "testconfig"]
-
 @pytest.fixture(scope="module")
 def sdconfig():
     return copy.deepcopy(sdconfig_)

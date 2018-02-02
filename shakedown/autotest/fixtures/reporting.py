@@ -12,8 +12,6 @@ from shakedown.autotest import util
 
 from shakedown.autotest import publishers
 
-__all__ = ["sdreport", "sdreportsection"]
-
 @pytest.fixture(scope="module", autouse=True)
 def sdreport(request):
 

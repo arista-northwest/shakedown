@@ -14,8 +14,6 @@ from shakedown.autotest import util
 
 from pprint import pprint
 
-__all__ = ["_auto_monkeypatch_send", "_auto_rollback", "_auto_load_module"]
-
 @pytest.fixture(scope="module", autouse=True)
 def _auto_load_module(request, sdconfig):
 
