@@ -4,7 +4,7 @@ import os
 import codecs
 from datetime import datetime
 from getpass import getuser
-
+from functools import partial
 from collections import OrderedDict
 from shakedown.util import mkdir
 
@@ -33,6 +33,15 @@ class ReportSection:
         self.elements = []
 
         self._outcome = None
+
+    def __getattr__(self, name):
+
+        # shortcut for appending elements by style
+        if name in styles:
+            return partial(self.append, name)
+        else:
+            raise AttributeError(f"'{self.__class__.__name__}' object has no" \
+                                 f" attribute '{name}'")
 
     @property
     def outcome(self):
@@ -95,6 +104,6 @@ class Report:
             section["id"] = section_id
             result["sections"].append(section)
 
-        return result #json.dumps(result, indent=indent, separators=separators)
+        return result
 
 report_store = {}

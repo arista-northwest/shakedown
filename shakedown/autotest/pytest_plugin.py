@@ -13,7 +13,6 @@ from shakedown.autotest import util
 from shakedown.autotest.report import report_store
 
 reportlog = []
-#from pprint import pprint
 
 def pytest_addoption(parser):
     """pytest hook for adding conosole options"""
@@ -23,7 +22,7 @@ def pytest_addoption(parser):
     group.addoption("--config", action="store", dest="sdconfig",
                     metavar="CONFIG")
 
-    # does not work...
+    # does not work... why?
     # group.addoption("--working-dir", action="store", metavar="WORKING_DIR",
     #                 help=("base directory for tests, templates and "
     #                       "configuration.  By default use current dir"))
@@ -31,8 +30,9 @@ def pytest_addoption(parser):
     group.addoption("--output-dir", action="store", metavar="OUTPUT_DIR",
                     help="base directory for reports")
 
-    group.addoption("--publish", action="append", default=[], metavar="PUBLISH",
-                     help="Publish report to specified service")
+    group.addoption("--publish", action="append", default=[],
+                    metavar="PUBLISH",
+                    help="Publish report to specified service")
 
     group.addoption("--option", help="user defined extra options")
 
@@ -45,6 +45,7 @@ def pytest_configure(config):
     if not config.getoption("sdconfig"):
         pytest.exit("config option is required")
 
+    # does not work... why?
     # working_dir = config.getoption("working_dir") or os.getcwd
     # os.chdir(working_dir)
 
