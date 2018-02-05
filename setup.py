@@ -40,7 +40,7 @@ setup(
     license = "MIT Licesnse",
     entry_points = {
         'console_scripts': [
-            'autotest = shakedown.autotest.entry:main',
+            'sdtest = shakedown.autotest.entry:main',
         ]
     }
 )
