@@ -5,7 +5,8 @@
 import copy
 import pytest
 import re
-
+import functools
+from shakedown.util import to_list
 from shakedown.config import config as sdconfig_
 from shakedown.session import sessions as sessions_
 
@@ -16,6 +17,27 @@ def sdconfig():
 @pytest.fixture(scope="session")
 def sessions():
     return sessions_
+
+class Dut():
+    def __init__(self, sessions, filt):
+        self.sessions = sessions
+        self.filter = filt
+    def execute(self, commands, *args, **kwargs):
+        commands = to_list(commands)
+        return self.sessions.send(self.filter, commands, *args, **kwargs)[0]
+
+    def configure(self, commands, *args, **kwargs):
+        commands = to_list(commands)
+        commands = ["configure"] + commands + ["end"]
+        return self.sessions.send(self.filter, commands, *args, **kwargs)[0]
+
+@pytest.fixture()
+def dut(sessions):
+    return Dut(sessions, r"dut")
+
+@pytest.fixture()
+def sdut(sessions):
+    return Dut(sessions, r"sdut")
 
 @pytest.fixture(scope="module")
 def testconfig(request):

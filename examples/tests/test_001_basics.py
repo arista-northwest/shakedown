@@ -33,3 +33,14 @@ def test_bogus(sessions, sdconfig, testconfig):
 def test_config(sessions):
     """test if rollback is triggered"""
     sessions.send(r"dut", ["configure", "username timmy nopassword", "end"])
+
+
+def test_dut(dut):
+    """testing DUT"""
+    dut.execute(["show version", "show hostname"])
+    dut.configure(["username tommy nopassword"])
+
+def test_sdut(sdut):
+    """testing SDUT"""
+    sdut.execute(["show version"])
+    sdut.configure(["username tummy nopassword"])
