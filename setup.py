@@ -36,6 +36,7 @@ setup(
         "Topic :: Terminals"
     ],
     packages = find_packages(),
+    package_data={'': ['settings.yml']},
     url = "https://github.com/arista-northwest1/shakedown",
     license = "MIT Licesnse",
     entry_points = {
