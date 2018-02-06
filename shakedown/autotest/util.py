@@ -9,3 +9,6 @@ def split_nodeid(nodeid):
     match = re.match(r"([\/\w_\-\.]+)(?:\:\:(\w+)(?:\[(.*)\])?)?", nodeid)
     if match:
         return tuple(match.groups())
+
+def load_template(name, path=None):
+    """Load a template from the default location or path specified"""
