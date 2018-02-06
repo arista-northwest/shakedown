@@ -7,6 +7,8 @@ title: Defaults Collection
 description: |
     Make sure the DUT is on the correct software version
 
+settings:
+    auto_rollback: true
 """
 import re
 import pytest
