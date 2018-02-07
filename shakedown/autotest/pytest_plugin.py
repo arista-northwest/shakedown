@@ -56,7 +56,12 @@ def pytest_unconfigure(config):
     """pytest hook - called after all tests have completed"""
 
     output_dir = config.getoption("output_dir")
+
+    if not (output_dir and reportlog):
+        return
+
     path = os.path.join(output_dir, "reportlog.json")
+
     with open(path, "w") as fh:
         fh.write(json.dumps(reportlog, indent=2, separators=(',', ': ')))
 
