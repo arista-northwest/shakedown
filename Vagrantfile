@@ -14,7 +14,7 @@ $script = <<SCRIPT
 #!/bin/bash
 
 apt-get update
-# apt-get upgrade -y
+apt-get upgrade -y
 
 apt-get install -y build-essential libssl-dev libffi6 libffi-dev
 apt-get install -y libfreetype6 libfreetype6-dev pkg-config libncurses5-dev
@@ -28,13 +28,16 @@ wget https://bootstrap.pypa.io/get-pip.py
 python3.6 get-pip.py
 rm -f get-pip.py
 
-pip3 install jinja2 pyyaml
+# pip3 install jinja2 pyyaml
 pip3 install cryptography --force-reinstall
 pip3 install requests sh paramiko
 pip3 install numpy scipy matplotlib ipython jupyter pandas sympy nose
-pip3 install grpcio grpcio-tools
-# get arcomm from github
-pip3 install --upgrade git+https://github.com/aristanetworks/arcomm.git
+pip3 install tinydb
+pip3 install -e git+https://github.com/schapman1974/tinymongo.git#egg=tinymongo
+# pip3 install --upgrade git+https://github.com/arista-northwest/eapi-py
+# pip3 install --upgrade git+https://github.com/aristanetworks/arcomm.git
+
+pip3 install -r /vagrant/requirements.txt
 
 cd /vagrant; python3.6 setup.py develop; cd ~
 
@@ -111,7 +114,7 @@ EOF
 #
 # BEGIN: Webapp
 #
-pip3 install flask
+# pip3 install flask
 
 ######################################
 # Future: Data Collection and Graphing
