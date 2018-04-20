@@ -22,6 +22,7 @@ class Dut():
     def __init__(self, sessions, filt):
         self.sessions = sessions
         self.filter = filt
+
     def execute(self, commands, *args, **kwargs):
         commands = to_list(commands)
         return self.sessions.send(self.filter, commands, *args, **kwargs)[0]

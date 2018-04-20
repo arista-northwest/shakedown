@@ -4,17 +4,17 @@ vars:
     downgrade: "flash:EOS-4.18.3.1F.swi"
 
 connections:
-  veos1:
+  veos-1:
     creds: [ admin, "" ]
     protocol: eapi+http
     tags: [ dut, tor ]
 
-  veos2:
+  veos-2:
     creds: [ admin,  "" ]
     tags: [ sdut, csp ]
 
 tests:
   basics:
-    software_version: 4.18.2F
+    software_version: 4.20.3F
   downgrade:
     testrail_case_id: C12345
