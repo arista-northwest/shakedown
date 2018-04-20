@@ -162,3 +162,5 @@ $RECYCLE.BIN/
 .envrc
 .direnv/
 .pytest_cache/
+
+src/
