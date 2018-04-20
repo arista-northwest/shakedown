@@ -46,3 +46,6 @@ def plush(data):
     sys.stdout.write(data)
     sys.stdout.flush()
     #sys.stderr.flush()
+
+def unzip(zipped):
+    return list(zip(*zipped))
