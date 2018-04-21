@@ -4,6 +4,7 @@
 
 import os
 import sys
+import pprint
 
 def to_list(data):
     """Creates a list containing the data as a single element or a new list
@@ -45,7 +46,9 @@ def plush(data):
     """print and flush"""
     sys.stdout.write(data)
     sys.stdout.flush()
-    #sys.stderr.flush()
+
+def pplush(data, **kwargs):
+    plush(pprint.pformat(data, **kwargs))
 
 def unzip(zipped):
     return list(zip(*zipped))
