@@ -74,27 +74,45 @@ class Config(collections.MutableMapping):
 
     def __init__(self):
 
-        self._config = {
+        self._store = {
             'settings': _ConfigSection(),
             'vars': _VarsSection(),
             'connections': _ConnectionsSection(),
             'tests': _TestsSection()
         }
 
-    def __getitem__(self, key):
-        return self._config[key]
-
-    def __setitem__(self, key, value):
-        self._config[key] = value
-
     def __delitem__(self, key):
-        del self._config[key]
+        del self._store[key]
+
+    def __getitem__(self, key):
+        return self._store[key]
 
     def __iter__(self):
-        return iter(self._config)
+        return iter(self._store)
 
     def __len__(self):
-        return len(self._config)
+        return len(self._store)
+
+    def __repr__(self):
+        return str(self.to_dict())
+
+    def __setitem__(self, key, value):
+        self._store[key] = value
+
+    def _handle_config_data(self, data):
+        _config = {}
+
+        for section, _data in data.items():
+            if not isinstance(_data, (list, dict)):
+                raise ValueError("only sections at top level...")
+
+            if section not in self._store:
+                raise KeyError("Unknown section '{}'".format(section))
+
+            self._store[section].update(_data)
+
+    def dump(self, **kwargs):
+        return yaml.dump(self.to_dict(), **kwargs)
 
     def load(self, file):
         with open(file, "r") as fh:
@@ -105,37 +123,26 @@ class Config(collections.MutableMapping):
         data = yaml.load(data)
         self._handle_config_data(data)
 
-    def _handle_config_data(self, data):
-        _config = {}
+    def mount(self, section, callback=None):
+        if section not in self._store:
+            raise KeyError("ERROR: section '{}' does not exists".format(section))
 
-        for section, _data in data.items():
-            if not isinstance(_data, (list, dict)):
-                raise ValueError("only sections at top level...")
+        return self._store[section].mount(callback)
 
-            if section not in self._config:
-                raise KeyError("Unknown section '{}'".format(section))
-
-            self._config[section].update(_data)
+    def initialize(self):
+        self._handle_config_data({
+            'settings': {},
+            'vars': {},
+            'connections': {},
+            'tests': {}
+        })
 
     def to_dict(self):
         _config = {}
-        for section, _data in self._config.items():
+        for section, _data in self._store.items():
             _config[section] = _data.to_dict()
         return _config
 
-    def dump(self, **kwargs):
-        return yaml.dump(self.to_dict(),
-                         **kwargs)
-
     to_yaml = dump
-
-    def mount(self, section, callback=None):
-        if section not in self._config:
-            raise KeyError("ERROR: section '{}' does not exists".format(section))
-
-        return self._config[section].mount(callback)
-
-    def __repr__(self):
-        return str(self.to_dict())
 
 config = Config()
