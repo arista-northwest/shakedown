@@ -1,7 +1,7 @@
 vars:
     vrf: management
-    upgrade: "flash:EOS-4.19.1F.swi"
-    downgrade: "flash:EOS-4.18.3.1F.swi"
+    # upgrade: "flash:EOS-4.20.5F.swi"
+    # downgrade: "flash:EOS-4.18.3.1F.swi"
 
 connections:
   veos-1:
@@ -13,8 +13,9 @@ connections:
     creds: [ admin,  "" ]
     tags: [ sdut, csp ]
 
+
 tests:
   basics:
-    software_version: 4.20.3F
+    software_version: 4.20.5F
   downgrade:
     testrail_case_id: C12345
