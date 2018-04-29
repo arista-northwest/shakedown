@@ -6,14 +6,14 @@ import jinja2
 import os
 
 TEMPLATE = """{{ heading.title }}
-{{ "=" * heading.title|length }}
+{{ "===" }}
 
 {{ heading.description }}
 
 {% for section in sections %}
 
-{{ section.description }}
-{{ "-" * section.description|length }}
+{{ section.description|default("[No Description]") }}
+{{ "---" }}
 
 __Outcome__: {{ section.outcome }}
 
@@ -39,6 +39,13 @@ __Outcome__: {{ section.outcome }}
         {% endif %}
 
     {% endfor %}
+
+    {% if section.traceback != None %}
+__Traceback__
+```
+{{ section.traceback }}
+```
+    {% endif %}
 {% endfor %}
 """
 
