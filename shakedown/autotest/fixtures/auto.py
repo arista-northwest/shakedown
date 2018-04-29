@@ -30,13 +30,16 @@ def _auto_monkeypatch_send(sessions, request):
     sent"""
 
     def _callback(response):
+
         nodeid = request.node.nodeid
         path, _, _ = util.split_nodeid(nodeid)
 
         if path in report_store:
             sdreport = report_store[path]
             section = sdreport.get_section(nodeid)
-            section.append("codeblock", str(response))
+            target = response.parent.host
+            text = "{}# {}\n{}".format(target, response.command, str(response))
+            section.append("codeblock", text)
 
     def _restore_send():
         sessions.send = sessions._session_monitor_send
