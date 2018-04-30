@@ -30,17 +30,26 @@ class BasicMagics(Magics):
     @magic_arguments.magic_arguments()
     @magic_arguments.argument("file", nargs="*",
         help="Load a YAML file from path")
+    @magic_arguments.argument("-r", "--reset", action="store_true",
+        help="Reset the configuration")
+    @magic_arguments.argument("-s", "--show", action="store_true",
+        help="Display the configuration")
     @line_cell_magic
     def sdconfig(self, line='', cell=None, local_ns=None):
         result = None
 
         args = magic_arguments.parse_argstring(self.sdconfig, line)
+        if args.reset:
+            config.initialize()
 
         for file in args.file:
             config.load(file)
 
         if cell:
             config.merge(cell)
+
+        if args.show:
+            util.plush(config.dump())
 
     @needs_local_scope
     @magic_arguments.magic_arguments()
@@ -69,7 +78,6 @@ class BasicMagics(Magics):
         help="sendoutput to specified file")
     @cell_magic
     def sdsend(self, line, cell=None, local_ns={}):
-
         args = magic_arguments.parse_argstring(self.sdsend, line)
 
         commands = []
