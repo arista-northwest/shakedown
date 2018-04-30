@@ -31,11 +31,10 @@ class ReportSection:
     def __init__(self):
         self.description = None
         self.elements = []
-
+        self.traceback = None
         self._outcome = None
 
     def __getattr__(self, name):
-
         # shortcut for appending elements by style
         if name in styles:
             return partial(self.append, name)
@@ -66,6 +65,7 @@ class ReportSection:
             "description": self.description,
             "outcome": self.outcome,
             "elements": self.elements,
+            "traceback": str(self.traceback) if self.traceback else None
         }
 
 class Report:
@@ -80,12 +80,6 @@ class Report:
         }
 
         self._sections = OrderedDict()
-
-    # def save(self, path):
-    #     path = os.path.expanduser(path)
-    #     mkdir(os.path.dirname(path))
-    #     with codecs.open(path, "w", encoding="utf-8") as fh:
-    #         fh.write(self.to_json())
 
     def get_section(self, section_id):
 
