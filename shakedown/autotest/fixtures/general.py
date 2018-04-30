@@ -9,14 +9,21 @@ import functools
 from shakedown.util import to_list
 from shakedown.config import config as sdconfig_
 from shakedown.session import sessions as sessions_
+from shakedown.scout import api as scout_
 
 @pytest.fixture(scope="module")
 def sdconfig():
-    return copy.deepcopy(sdconfig_)
+    return copy.copy(sdconfig_)
 
 @pytest.fixture(scope="session")
 def sessions():
+    """gets available connnections"""
     return sessions_
+
+@pytest.fixture(scope="session")
+def scout():
+    scout_.gather()
+    return scout_
 
 class Dut():
     def __init__(self, sessions, filt):
@@ -26,6 +33,8 @@ class Dut():
     def execute(self, commands, *args, **kwargs):
         commands = to_list(commands)
         return self.sessions.send(self.filter, commands, *args, **kwargs)[0]
+
+    send = execute_until = execute
 
     def configure(self, commands, *args, **kwargs):
         commands = to_list(commands)
