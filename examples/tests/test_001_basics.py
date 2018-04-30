@@ -14,6 +14,7 @@ import re
 import pytest
 import arcomm
 
+from pprint import pprint
 def test_version(sessions, sdconfig, testconfig, sdreportsection):
     """Autotest will scan the class for any methods that start with 'test'."""
 
@@ -24,25 +25,38 @@ def test_version(sessions, sdconfig, testconfig, sdreportsection):
         assert version in str(r[0].output), \
             "Software version should be {}".format(version)
 
+    sdreportsection.text("random link...")
     sdreportsection.link("http://httpbin.org/", text="httpbin",
                         title="link to httpbin")
 
 def test_bogus(sessions, sdconfig, testconfig):
-    """Run a bogus command. should throw error"""
+    """Runs a bogus command and `arcomm.ExecuteFailed` should be caught"""
+
     with pytest.raises(arcomm.ExecuteFailed):
         response = sessions.send(r"dut", "show bogus")
 
 def test_config(sessions):
-    """test if rollback is triggered"""
+    """If configuration changes are made inside a test module. They will be \
+    rolled back"""
     sessions.send(r"dut", ["configure", "username timmy nopassword", "end"])
 
-
 def test_dut(dut):
-    """testing DUT"""
+    """The `dut` can still be used directly, if the tag is assigned properly \
+    to a connection
+
+    connections:
+      veos-1:
+        ...
+        tags: [ dut, ... ]
+    """
+
     dut.execute(["show version", "show hostname"])
     dut.configure(["username tommy nopassword"])
 
 def test_sdut(sdut):
-    """testing SDUT"""
+    """The `sdut` can still be used directly if the tag exists"""
     sdut.execute(["show version"])
-    sdut.configure(["username tummy nopassword"])
+    sdut.configure(["username tumi nopassword"])
+
+def test_failure():
+    assert True == False, "True does not equal False!"
