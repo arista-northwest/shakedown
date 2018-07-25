@@ -39,8 +39,7 @@ class ReportSection:
         if name in styles:
             return partial(self.append, name)
         else:
-            raise AttributeError(f"'{self.__class__.__name__}' object has no" \
-                                 f" attribute '{name}'")
+            raise AttributeError("'{}' object has no attribute '{}'".format(self.__class__.__name__, name))
 
     @property
     def outcome(self):
