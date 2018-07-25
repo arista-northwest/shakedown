@@ -3,4 +3,4 @@
 # Arista Networks, Inc. Confidential and Proprietary.
 
 from shakedown.scout import api
-from . import entry
+#from . import entry
