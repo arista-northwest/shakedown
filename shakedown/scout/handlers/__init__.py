@@ -1,10 +1,11 @@
 # -*- coding: utf-8 -*-
 # Copyright (c) 2018 Arista Networks, Inc.  All rights reserved.
 # Arista Networks, Inc. Confidential and Proprietary.
-from . import bgp, interfaces, system, lldp
+from . import bgp, interfaces, system, lldp, lag
 handlers = [
     ("system", system),
     ("interfaces", interfaces),
     ("bgp", bgp),
-    ("lldp", lldp)
+    ("lldp", lldp),
+    ("lag", lag)
 ]
