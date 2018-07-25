@@ -42,12 +42,12 @@ def mkdir(path):
         else:
             raise
 
-def plush(data):
+def plush(data=""):
     """print and flush"""
     sys.stdout.write(data)
     sys.stdout.flush()
 
-def pplush(data, **kwargs):
+def pplush(data="", **kwargs):
     plush(pprint.pformat(data, **kwargs))
 
 def unzip(zipped):
