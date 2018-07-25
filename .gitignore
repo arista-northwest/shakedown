@@ -164,3 +164,6 @@ $RECYCLE.BIN/
 .pytest_cache/
 
 src/
+
+docker/jenkins/jenkins_home
+examples/_reports
