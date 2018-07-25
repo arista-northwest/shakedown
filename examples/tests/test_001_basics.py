@@ -29,6 +29,15 @@ def test_version(sessions, sdconfig, testconfig, sdreportsection):
     sdreportsection.link("http://httpbin.org/", text="httpbin",
                         title="link to httpbin")
 
+def test_bad_version(sessions, sdconfig, testconfig):
+    """Set version to an old image.  Will fail"""
+    version = "4.16.6"
+    response = sessions.send(r"dut", "show version")
+
+    for r in response:
+        assert version in str(r[0].output), \
+            "Software version should be {}".format(version)
+
 def test_bogus(sessions, sdconfig, testconfig):
     """Runs a bogus command and `arcomm.ExecuteFailed` should be caught"""
 
@@ -59,4 +68,5 @@ def test_sdut(sdut):
     sdut.configure(["username tumi nopassword"])
 
 def test_failure():
+    """Force a failure"""
     assert True == False, "True does not equal False!"

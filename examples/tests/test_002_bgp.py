@@ -11,10 +11,10 @@ settings:
     auto_rollback: true
 """
 
-from pprint import pprint
-
 def test_sessions(scout, sessions):
-
+    """Find connected interfaces and bgp peers.  Then, \
+    assert that the session is established
+    """
     interfaces = scout.find("interfaces.status", "s?dut", query={
         "primary_ip": {"$ne": None},
         "link_status": "connected"

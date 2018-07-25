@@ -2,17 +2,19 @@
 # Copyright (c) 2014 Arista Networks, Inc.  All rights reserved.
 # Arista Networks, Inc. Confidential and Proprietary.
 """
-title: Test Syslog
+title: Logging and Syslog
 
 description: |
-    Test basic Syslog functionality
+    Test interface up/down syslog messages
 
-settings:
-    auto_rollback: true
 """
 
 from pprint import pprint
 import time
+
+def test_logging_configuration(dut):
+    """ Verify the configuration """
+    resp = dut.execute("show running-config section logging")
 
 def test_intf_up_down(sessions, scout, request):
     """Test syslog messages for interface up/down events"""
@@ -25,6 +27,7 @@ def test_intf_up_down(sessions, scout, request):
 
     t1 = int(time.time()) - 5
 
+    # capture initial status
     sessions.send("dut", "show interfaces {} status".format(neighbor["local_port"]))
 
     sessions.send(neighbor["name"], [
