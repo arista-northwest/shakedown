@@ -5,17 +5,12 @@
 import asyncio
 import collections
 import functools
-import yaml
-import warnings
-import http.client
 import re
-from pprint import pprint
-from shakedown.util import to_list, merge
-from shakedown.config import config
-
-from requests.sessions import ChunkedEncodingError
 
 import arcomm
+
+from shakedown.util import to_list
+from shakedown.config import config
 
 class SessionError(Exception):
     pass
@@ -32,17 +27,16 @@ class Session(collections.MutableMapping):
 
     @property
     def config(self):
+        """Backward compatible standing for old config property"""
         return {
             key:value
             for (key,value) in self.items()
-            if key not in ["tags", "endpoint"]
+            if key in ["creds", "protocol"]
         }
 
     def __getattr__(self, item):
-        # try:
         return self._store[item]
-        # except KeyError:
-        #     raise AttributeError('asd')
+
     def __getitem__(self, item):
         return self._store[item]
 
@@ -82,7 +76,7 @@ class SessionManager:
             self.close(data["key"])
 
     def reset(self):
-        self._sessions = [] #collections.OrderedDict()
+        self._sessions = []
 
     clear = reset
 
@@ -109,15 +103,12 @@ class SessionManager:
             # params, tags = item
             config = session.config
 
-            # copy tags don't get a reference
-            keys = list(session.tags)
-
-            keys.insert(0, session.endpoint)
+            keys = [session.endpoint] + session.tags
 
             for pattern in patterns:
                 for f in filter(pattern.match, keys):
-                    #filtered[endpoint] = config
-                    filtered.append(session)
+                    if session not in filtered:
+                        filtered.append(session)
 
         return filtered #list(filtered.items())
 
@@ -138,18 +129,19 @@ class SessionManager:
         until = kwargs.get("until")
 
         if until:
-            del(kwargs["until"]) # 'until' is not recognized by arcomm
+            del(kwargs["until"]) # 'until' is not recognized by `execute_until`
+            kwargs["method"] = "execute_until"
             kwargs["condition"] = until
             kwargs.setdefault("exclude", False)
             kwargs.setdefault("timeout", 30)
             kwargs.setdefault("delay", 1)
-            kwargs.setdefault("method", "execute_until")
 
         loop = asyncio.get_event_loop()
 
         for response in loop.run_until_complete(_asend(filtered, commands,
                                                        **kwargs)):
             if raise_for_error:
+                # print(response)
                 response.raise_for_error()
             responses.append(response)
 
@@ -157,9 +149,7 @@ class SessionManager:
 
     execute = send
 
-sessions = SessionManager()
-
-async def _asend(filtered, commands, method="execute", *args, **kwargs):
+async def _asend(filtered, commands, method="execute", **kwargs):
     loop = asyncio.get_event_loop()
 
     tasks = []
@@ -171,4 +161,6 @@ async def _asend(filtered, commands, method="execute", *args, **kwargs):
 
     completed, pending = await asyncio.wait(tasks)
 
-    return [t.result() for t in completed]
+    return [task.result() for task in completed]
+
+sessions = SessionManager()
