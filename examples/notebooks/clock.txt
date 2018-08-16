@@ -1,0 +1,9 @@
+host: veos-2
+status: ok
+commands:
+  - command: show clock
+    status: ok
+    output: |
+      Thu Aug  2 05:36:56 2018
+      Timezone: UTC
+      Clock source: local

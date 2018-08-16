@@ -39,7 +39,8 @@ RUN /usr/local/bin/install-plugins.sh \
   git github-branch-source python jdk-tool command-launcher bouncycastle-api filesystem_scm
 
 # RUN cat /var/tmp/job-template.xml | \
-#  java -jar /var/jenkins_home/war/WEB-INF/jenkins-cli.jar -s http://localhost:8080/ create-job Shakedown-Template
+# java -jar /var/jenkins_home/war/WEB-INF/jenkins-cli.jar -s http://localhost:8080/ create-job Shakedown-Template
 
 ENV PYTHONPATH /shakedown
 ENV PYTHONDONTWRITEBYTECODE 1
+ENV JAVA_OPTS "-Djava.awt.headless=true -Djenkins.install.runSetupWizard=false"

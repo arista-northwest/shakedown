@@ -5,6 +5,7 @@
 import os
 import sys
 import pprint
+import difflib
 
 def to_list(data):
     """Creates a list containing the data as a single element or a new list
@@ -52,3 +53,10 @@ def pplush(data="", **kwargs):
 
 def unzip(zipped):
     return list(zip(*zipped))
+
+def udiff(left, right):
+    """Show the differences between two multiline strings"""
+    _diff = []
+    for line in difflib.unified_diff(left.splitlines(), right.splitlines()):
+        _diff.append(line)
+    return "\n".join(_diff)

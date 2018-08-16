@@ -20,7 +20,7 @@ def h_peers(responses):
             records.append({
                 "vrf": vrf,
                 "type": peer["linkType"],
-                "peer": peer["peerAddress"],
+                "address": peer["peerAddress"],
                 "local_asn": int(peer["localAsn"]),
                 "local_router_id": peer["localRouterId"],
                 "asn": int(peer["asn"]),

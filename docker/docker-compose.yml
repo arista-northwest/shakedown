@@ -2,8 +2,8 @@ version: '3.7'
 services:
   jenkins:
     build: jenkins/
-    environment:
-      JAVA_OPTS: "-Djava.awt.headless=true -Djenkins.install.runSetupWizard=false"
+#    environment:
+#      JAVA_OPTS: "-Djava.awt.headless=true -Djenkins.install.runSetupWizard=false"
     ports:
       - "50000:50000"
       - "8080:8080"
@@ -22,3 +22,5 @@ services:
     volumes:
       - ../:/shakedown
       - ../examples:/notebooks
+
+  

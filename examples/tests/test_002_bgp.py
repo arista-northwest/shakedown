@@ -32,5 +32,5 @@ def test_sessions(scout, sessions):
             responses = sessions.send(peer["_dut"], commands, encoding="text")
 
             for response in responses:
-                assert "BGP state is Established" in str(response), \
+                assert "BGP state is Established" in str(response.output), \
                        "Peer state should be established"

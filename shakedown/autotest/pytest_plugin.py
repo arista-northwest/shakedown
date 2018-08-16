@@ -45,10 +45,11 @@ def pytest_configure(config):
     if not config.getoption("sdconfig"):
         pytest.exit("config option is required")
 
+    #config.setoption("tbstyle", "short")
+
     # does not work... why?
     # working_dir = config.getoption("working_dir") or os.getcwd
     # os.chdir(working_dir)
-
     with open(config.getoption("sdconfig"), "r") as fh:
         sdconfig.merge(fh.read())
 
@@ -98,4 +99,5 @@ def pytest_runtest_logreport(report):
             sdreport = report_store[path]
             section = sdreport.get_section(nodeid)
             section.outcome = report.outcome
+            #section.traceback = report.longrepr.reprcrash if report.longrepr else None
             section.traceback = report.longrepr

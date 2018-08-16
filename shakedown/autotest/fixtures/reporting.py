@@ -59,3 +59,5 @@ def sdreportsection(request):
     sdreport = report_store[path]
 
     return sdreport.get_section(nodeid)
+
+reportitem = sdreportsection

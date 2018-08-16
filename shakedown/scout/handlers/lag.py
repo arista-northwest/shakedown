@@ -24,25 +24,24 @@
 def h_details(responses):
     #
     # lags = responses[0]["portChannels"]
+
     lags = []
     for name, data in responses[0]["portChannels"].items():
         for port, details in data["inactivePorts"].items():
-
             lags.append({
                 "name": name,
                 "port": port,
-                "protocol": details["protocol"],
-                "mode": details["lacpMode"],
+                "protocol": details.get("protocol") or "",
+                "mode": details.get("lacpMode") or "",
                 "active": False
             })
 
         for port, details in data["activePorts"].items():
-
             lags.append({
                 "name": name,
                 "port": port,
-                "protocol": details["protocol"],
-                "mode": details["lacpMode"],
+                "protocol": details.get("protocol") or "",
+                "mode": details.get("lacpMode") or "",
                 "active": True
             })
     return lags

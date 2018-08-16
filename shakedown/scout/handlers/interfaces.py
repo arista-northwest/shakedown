@@ -57,13 +57,14 @@ def h_status(responses):
 
     for name, status in responses[0]["interfaceStatuses"].items():
 
-        primary_ip = None
-        primary_masklen = None
-        primary_network = None
+        primary_ip = "unassigned"
+        primary_masklen = -1
+        primary_network = "unassigned"
         mtu = -1
-        vrf = None
+        vrf = "default"
 
-        mode = status["vlanInformation"].get("interfaceMode")
+        mode = status["vlanInformation"].get("interfaceForwardingModel")
+
         if mode == "routed" and name in ip_interfaces:
             _priip = ip_interfaces[name]["interfaceAddress"]["primaryIp"]
 
@@ -86,7 +87,7 @@ def h_status(responses):
             "link_status": status["linkStatus"],
             "protocol_status": status["lineProtocolStatus"],
             "primary_ip": primary_ip,
-            "primary_masklen": primary_masklen,
+            "primary_masklen": primary_masklen ,
             "primary_network": primary_network,
             "mtu": int(mtu),
             "vrf": vrf

@@ -9,7 +9,7 @@ import re
 
 import arcomm
 
-from shakedown.util import to_list
+from shakedown.util import to_list, merge
 from shakedown.config import config
 
 class SessionError(Exception):
@@ -121,7 +121,7 @@ class SessionManager:
         for hostname in defunct:
             del self._sessions[hostname]
 
-    def send(self, endpoints, commands, raise_for_error=False, **kwargs):
+    def send(self, endpoints, commands, raise_for_error=False, config={}, **kwargs):
 
         responses = []
         filtered = self.filter(endpoints)
@@ -139,23 +139,28 @@ class SessionManager:
         loop = asyncio.get_event_loop()
 
         for response in loop.run_until_complete(_asend(filtered, commands,
+                                                       config=config,
                                                        **kwargs)):
             if raise_for_error:
                 # print(response)
                 response.raise_for_error()
+
             responses.append(response)
 
         return responses
 
     execute = send
 
-async def _asend(filtered, commands, method="execute", **kwargs):
+async def _asend(filtered, commands, method="execute", config={}, **kwargs):
     loop = asyncio.get_event_loop()
 
     tasks = []
 
     for session in filtered:
-        sess = arcomm.Session(session.endpoint, **session.config)
+        config_ = session.config.copy()
+        config_.update(config)
+
+        sess = arcomm.Session(session.endpoint, **config)
         part = functools.partial(getattr(sess, method), commands, **kwargs)
         tasks.append(loop.run_in_executor(None, part))
 

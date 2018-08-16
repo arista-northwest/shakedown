@@ -42,7 +42,8 @@ def gather(tables=[], endpoints=r".*"):
                     logger.warn(response.errored[0])
                     continue
 
-                response = callback(response.responses)
+                #print(type(response.responses))
+                response = callback(response)
 
                 if not isinstance(response, list):
                     response = [response]

@@ -6,10 +6,11 @@ import copy
 import pytest
 import re
 import functools
-from shakedown.util import to_list
+from shakedown.util import to_list, merge
 from shakedown.config import config as sdconfig_
 from shakedown.session import sessions as sessions_
-from shakedown.scout import api as scout_
+#from shakedown.scout import api as scout_
+from shakedown import scout as scout_
 
 @pytest.fixture(scope="module")
 def sdconfig():
@@ -29,6 +30,20 @@ class Dut():
     def __init__(self, sessions, filt):
         self.sessions = sessions
         self.filter = filt
+
+        self.filtered = self.sessions.filter(filt)
+
+    @property
+    def host(self):
+        return self.filtered[0].endpoint
+
+    @property
+    def creds(self):
+        return self.filtered[0].creds
+
+    @property
+    def protocol(self):
+        return self.filtered[0].protocol
 
     def execute(self, commands, *args, **kwargs):
         commands = to_list(commands)
@@ -53,7 +68,10 @@ def sdut(sessions):
 def testconfig(request):
 
     names = [request.module.__name__]
-    mounted = sdconfig_.mount("tests")
+    tests = sdconfig_.mount("tests")
+    filtered = {}
+
+    vars = sdconfig_.mount("vars")
 
     _match = re.search(r"test_(\d+_([\w_]+))", names[0])
     if _match:
@@ -61,7 +79,7 @@ def testconfig(request):
             names.append(item)
 
     for item in names:
-        if item in mounted:
-            return mounted[item]
+        if item in tests:
+            filtered = tests[item]
 
-    return {}
+    return merge(filtered, vars)

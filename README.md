@@ -14,6 +14,20 @@ use vagrant
 $ vagrant up
 ```
 
+Using docker containers (jupyter and jenkins) (w/ docker-compose)
+
+```bash
+cd docker
+docker-compose up jupyter
+```
+Then open a browser to http://localhost:8888
+
+```bash
+cd docker
+docker-compose up jenkins
+```
+Then open a browser to http://localhost:8080
+
 or install directly
 
 ```bash

@@ -25,6 +25,7 @@ class BasicMagics(Magics):
         super().__init__(shell, **kwargs)
 
         self.shell.user_ns["_sdconfig"] = config
+        self.shell.user_ns["_sdsessions"] = sessions
 
     @needs_local_scope
     @magic_arguments.magic_arguments()
