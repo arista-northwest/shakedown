@@ -39,6 +39,8 @@ def pytest_addoption(parser):
 @pytest.mark.tryfirst
 def pytest_configure(config):
 
+    config.option.tbstyle = "short"
+
     if config.getoption("help"):
         return
 

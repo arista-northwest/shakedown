@@ -75,3 +75,20 @@ def _auto_rollback(sessions, request, sdconfig):
     request.addfinalizer(_rollback)
 
     response = sessions.send(".*", "copy running-config {}".format(backup))
+
+@pytest.fixture(scope="module", autouse=True)
+def _auto_backdoor(sessions, sdconfig, request):
+
+    def _rollback():
+        sessions.send(".*", [
+            "configure",
+            "no aaa root",
+            "end"
+        ])
+    request.addfinalizer(_rollback)
+
+    sessions.send(".*", [
+        "configure",
+        "aaa root secret root",
+        "end"
+    ])

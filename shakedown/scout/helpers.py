@@ -21,6 +21,24 @@ def get_management_intf(filter):
 def get_viable_bgp_peers(filter):
     return api.find("bgp.peers", filter, query={"state": "Established"})
 
+def get_viable_bgp_session(afilter, bfilter=".*"):
+
+    aside = None
+    bside = None
+
+    peers = get_viable_bgp_peers(afilter)
+
+    for aside in peers:
+        #print(peer)
+        bside = api.find_one("bgp.peers", bfilter, query={
+            "update_source": aside["address"],
+            "state": "Established"
+        })
+        if bside:
+            break
+
+    return (aside, bside)
+
 def get_viable_portchannel(filter, other):
 
     ports = [

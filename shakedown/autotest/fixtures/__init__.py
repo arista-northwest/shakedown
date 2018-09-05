@@ -4,6 +4,7 @@
 
 from .general import sdconfig, sessions, scout, testconfig, dut, sdut
 from .auto import _auto_monkeypatch_send, _auto_rollback, _auto_load_module
+from .auto import _auto_backdoor
 from .reporting import sdreport, sdreportsection
 
 

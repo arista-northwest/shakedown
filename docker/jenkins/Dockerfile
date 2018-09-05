@@ -9,6 +9,9 @@ RUN  \
   apt-get install -y python3-pip python3-paramiko && \
   apt-get install -y python-pip && \
   apt-get install -y git && \
+  apt-get install -y sshpass && \
+  pip3 install pandas numpy matplotlib && \
+  pip3 install pexpect && \
   pip3 install future && \
   pip3 install pytest && \
   pip3 install jinja2 && \
@@ -36,10 +39,12 @@ EXPOSE 8080/tcp 50000/tcp
 USER jenkins
 
 RUN /usr/local/bin/install-plugins.sh \
-  git github-branch-source python jdk-tool command-launcher bouncycastle-api filesystem_scm
+  git github-branch-source python jdk-tool command-launcher \
+  bouncycastle-api filesystem_scm
 
 # RUN cat /var/tmp/job-template.xml | \
-# java -jar /var/jenkins_home/war/WEB-INF/jenkins-cli.jar -s http://localhost:8080/ create-job Shakedown-Template
+# java -jar /var/jenkins_home/war/WEB-INF/jenkins-cli.jar \
+#   -s http://localhost:8080/ create-job Shakedown-Template
 
 ENV PYTHONPATH /shakedown
 ENV PYTHONDONTWRITEBYTECODE 1

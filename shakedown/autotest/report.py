@@ -56,7 +56,7 @@ class ReportSection:
         if style not in styles:
             raise ValueError("Unrecognized item style '{}'".format(style))
 
-        self.elements.append({"style": style, "content": content,
+        self.elements.append({"style": style, "content": str(content),
                               "keywords": kwargs})
 
     def to_dict(self):
