@@ -39,6 +39,15 @@ def get_viable_bgp_session(afilter, bfilter=".*"):
 
     return (aside, bside)
 
+def get_viable_bgp_ecmp_route(filter):
+    return api.find_one("bgp.received_routes", filter, query={
+        "isActive": True,
+        "isEcmp": True,
+        "isEcmpHead": True,
+        "isEcmpContributor": True,
+        "isValid": True
+    })
+
 def get_viable_portchannel(filter, other):
 
     ports = [

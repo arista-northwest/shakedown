@@ -32,7 +32,26 @@ def h_peers(responses):
             })
     return records
 
+def h_received_routes(responses):
+    records = []
+    for vrf, summary in responses[0]["vrfs"].items():
+        for routes, detail in summary["bgpRouteEntries"].items():
+            for route in detail["bgpRoutePaths"]:
+                records.append({
+                    "vrf": vrf,
+                    "address": detail["address"],
+                    "route": route,
+                    "isActive": route["routeType"]["active"],
+                    "isEcmp": route["routeType"]["ecmp"],
+                    "isEcmpHead": route["routeType"]["ecmpHead"],
+                    "isEcmpContributor": route["routeType"]["ecmpContributor"],
+                    "isValid": route["routeType"]["valid"]
+                })
+    return records
+
+
 CMDS = [
     ("summary", ["show ip bgp summary"], h_summary),
-    ("peers", ["show ip bgp neighbors"], h_peers)
+    ("peers", ["show ip bgp neighbors"], h_peers),
+    ("received_routes", ["show ip bgp"], h_received_routes)
 ]
