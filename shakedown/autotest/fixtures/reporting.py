@@ -35,7 +35,7 @@ def sdreport(request):
         if output_dir:
             output_dir = os.path.expanduser(output_dir)
             output_dir = os.path.join(output_dir, request.module.__name__)
-            mkdir(output_dir)
+            # mkdir(output_dir)
 
             data = report.to_dict()
 
