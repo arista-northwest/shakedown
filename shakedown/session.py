@@ -22,7 +22,9 @@ class Session(collections.MutableMapping):
             "endpoint": endpoint,
             "creds": creds,
             "protocol": protocol,
-            "tags": tags
+            "tags": tags,
+            "tainted": False,
+            "alive": None
         }
 
     @property
@@ -61,7 +63,6 @@ class SessionManager:
 
         # stores session objects. assigned in `reset`
         self._sessions = None
-
         self.reset()
 
         self._config = config.mount("connections", self._handle_notifications)
@@ -76,7 +77,7 @@ class SessionManager:
             self.close(data["key"])
 
     def reset(self):
-        self._sessions = []
+        self._sessions = collections.OrderedDict()
 
     clear = reset
 
@@ -89,7 +90,7 @@ class SessionManager:
                 config["tags"] = tags.split(",")
 
         #self._sessions[endpoint] = dict(**config)
-        self._sessions.append(Session(endpoint, **config))
+        self._sessions[endpoint] = Session(endpoint, **config)
 
     def filter(self, patterns):
         """filter connections for hostname or tags"""
@@ -99,7 +100,7 @@ class SessionManager:
         patterns = [re.compile(pat) for pat in to_list(patterns)]
 
         #for endpoint, item in self._sessions.items():
-        for session in self._sessions:
+        for ep, session in self._sessions.items():
             # params, tags = item
             config = session.config
 
