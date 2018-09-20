@@ -17,7 +17,7 @@ logger = logging.getLogger(__name__)
 
 database = Database()
 
-def gather(tables=[], endpoints=r".*"):
+def gather(endpoints=r".*", tables=[]):
     tables = to_list(tables)
 
     for h_name, handler in handlers.handlers:
@@ -39,7 +39,7 @@ def gather(tables=[], endpoints=r".*"):
                 hostaddr = response.host
 
                 if response.status != "ok":
-                    logger.warn(response.errored[0])
+                    logger.warning(response.errored)
                     continue
 
                 #print(type(response.responses))
