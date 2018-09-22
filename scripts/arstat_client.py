@@ -22,6 +22,9 @@ except ImportError:
     raise ValueError(('SciPy stack is not install. Please install it '
                       'from http://www.scipy.org/install.html to use '
                       'this class'))
+import signal
+
+
 
 def floor_timestamps(timestamps):
 
@@ -105,6 +108,19 @@ def main():
     datatype = numpy.float
     dataframe = pandas.DataFrame()
     sorted_df = None
+
+    def sigint_handler(sig, frame):
+        print(sorted_df)
+        if args.plot_file:
+
+            print("plotting...")
+            plot(sorted_df, args.plot_file, top=args.plot_topn,
+                 title=args.plot_title, ylabel=args.plot_ylabel)
+
+        sys.exit(0)
+
+    signal.signal(signal.SIGINT, sigint_handler)
+
     try:
         while True:
             line = sys.stdin.readline()
