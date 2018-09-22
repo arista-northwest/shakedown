@@ -6,9 +6,12 @@ import copy
 import pytest
 import re
 import functools
+import os
+import pexpect
 from shakedown.util import to_list, merge
 from shakedown.config import config as sdconfig_
 from shakedown.session import sessions as sessions_
+from shakedown.autotest.dut import Dut
 #from shakedown.scout import api as scout_
 from shakedown import scout as scout_
 
@@ -23,46 +26,17 @@ def sessions():
 
 @pytest.fixture(scope="session")
 def scout():
-    scout_.gather()
+    scout_.gather("s?dut")
     return scout_
 
-class Dut():
-    def __init__(self, sessions, filt):
-        self.sessions = sessions
-        self.filter = filt
-
-        self.filtered = self.sessions.filter(filt)
-
-    @property
-    def host(self):
-        return self.filtered[0].endpoint
-
-    @property
-    def creds(self):
-        return self.filtered[0].creds
-
-    @property
-    def protocol(self):
-        return self.filtered[0].protocol
-
-    def execute(self, commands, *args, **kwargs):
-        commands = to_list(commands)
-        return self.sessions.send(self.filter, commands, *args, **kwargs)[0]
-
-    send = execute_until = execute
-
-    def configure(self, commands, *args, **kwargs):
-        commands = to_list(commands)
-        commands = ["configure"] + commands + ["end"]
-        return self.sessions.send(self.filter, commands, *args, **kwargs)[0]
-
-@pytest.fixture()
+@pytest.fixture(scope="module")
 def dut(sessions):
     return Dut(sessions, r"dut")
 
-@pytest.fixture()
+@pytest.fixture(scope="module")
 def sdut(sessions):
-    return Dut(sessions, r"sdut")
+    if sessions.filter(r"sdut"):
+        return Dut(sessions, r"sdut")
 
 @pytest.fixture(scope="module")
 def testconfig(request):
