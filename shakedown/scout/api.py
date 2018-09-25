@@ -15,12 +15,14 @@ from pprint import pprint
 logger = logging.getLogger(__name__)
 #logging.basicConfig(level=logging.DEBUG)
 
+_cached = []
 database = Database()
 
 def gather(endpoints=r".*", tables=[]):
     tables = to_list(tables)
 
     for h_name, handler in handlers.handlers:
+
         for key, commands, callback in handler.CMDS:
 
             t_name = h_name + "." + key
@@ -60,17 +62,81 @@ def gather(endpoints=r".*", tables=[]):
 
 refresh = gather
 
-def _prepare_query(endpoints=None, query={}):
-    endpoints = [sess.endpoint for sess in sessions.filter(endpoints)]
+def _get_handler(table):
+    for handler_name, handler in handlers.handlers:
+        for key, cmds, callback in handler.CMDS:
+            _table = ".".join([handler_name, key])
+            if _table == table:
+                return (database[table], cmds, callback)
 
+    raise ValueError("table '{}' not found".format(table))
+
+def _get_endpoints(filter):
+    return [sess.endpoint for sess in sessions.filter(filter)]
+
+def _prepare_query(endpoints=None, query={}):
     if endpoints:
         query["_dut"] = { "$in": endpoints }
 
     return query
 
-def find(table, endpoints=None, query={}):
-    query = _prepare_query(endpoints, query)
+def _get_cache_key(table, endpoint):
+    return "::".join([table, endpoint])
 
+def _get_not_cached(table, endpoints):
+    return [ep for ep in endpoints if _get_cache_key(table, ep) not in _cached]
+
+def _set_cached(table, endpoint):
+    key = _get_cache_key(table, endpoint)
+
+    if key not in _cached:
+        _cached.append(key)
+
+
+
+def _cache(table, endpoints):
+    endpoints = _get_not_cached(table, endpoints)
+    if not endpoints:
+        return
+    table, commands, callback = _get_handler(table)
+    responses = sessions.send(endpoints, list(commands), encoding='json')
+
+    for response in responses:
+        hostaddr = response.host
+
+        if response.status != "ok":
+            logger.warning(response.errored)
+            continue
+
+        response = callback(response)
+
+        if not isinstance(response, list):
+            response = [response]
+
+        for item in response:
+            item = dict(item)
+
+            if not table.find_one(item):
+                table.insert_one({
+                    "_dut": hostaddr,
+                    "_timestamp": int(time.time()),
+                    **item
+                })
+            else:
+                table.update_one(item, {
+                    "_dut": hostaddr,
+                    "_timestamp": int(time.time()),
+                    **item
+                })
+
+        _set_cached(str(table), hostaddr)
+
+def find(table, endpoints=None, query={}):
+    endpoints = _get_endpoints(endpoints)
+
+    _cache(table, endpoints)
+
+    query = _prepare_query(endpoints, query)
     result = database[table].find(query)
 
     if result:
@@ -79,6 +145,9 @@ def find(table, endpoints=None, query={}):
     return result
 
 def find_one(table, endpoints=None, query={}):
+    endpoints = _get_endpoints(endpoints)
+
+    _cache(table, endpoints)
 
     query = _prepare_query(endpoints, query)
     return database[table].find_one(query)

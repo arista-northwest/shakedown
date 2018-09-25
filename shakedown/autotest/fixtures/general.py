@@ -26,7 +26,7 @@ def sessions():
 
 @pytest.fixture(scope="session")
 def scout():
-    scout_.gather("s?dut")
+    #scout_.gather("s?dut")
     return scout_
 
 @pytest.fixture(scope="module")
