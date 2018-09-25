@@ -87,7 +87,7 @@ def get_viable_lag_member_neighbor(filter, name):
         })
 
         if neighbor:
-            dut = api.find_one("system.info", query={
+            dut = api.find_one("system.info", ".*", query={
                 "fqdn": neighbor["name"]
             })["_dut"]
 
