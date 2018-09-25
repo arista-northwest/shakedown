@@ -122,7 +122,14 @@ class SessionManager:
         for hostname in defunct:
             del self._sessions[hostname]
 
-    def send(self, endpoints, commands, raise_for_error=False, config={}, **kwargs):
+    def send(self, *args, **kwargs):
+        """This function is monkey-patched by a fixture, so we need to maintain
+        access to the 'real' :meth:`SessionManager._send` method for internal
+        use"""
+        return self._send(*args, **kwargs)
+
+    def _send(self, endpoints, commands, raise_for_error=False, config={},
+              **kwargs):
 
         responses = []
         filtered = self.filter(endpoints)
