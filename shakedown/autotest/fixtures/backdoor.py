@@ -93,21 +93,17 @@ class ArstatClient():
                 value = entry["cpu_usage"]
                 name = entry["tags"]["task"]
                 parsed[name] = value
-
         return parsed
 
     def feedline(self, line):
-        sorted_df = None
-
-        line = line.strip()
-        data = json.loads(line)
-
+        data = json.loads(line.strip())
+        ts = pandas.Timestamp(datetime.utcnow(), tz='utc')
         self.dataframe = self.update(self.parse_data(data),
-                                     timestamps=[datetime.utcnow()])
+                                     timestamps=[ts])
 
 
 @pytest.fixture(scope="function")
-def procplot(sessions, request, filter):
+def procplot(sessions, request, reportitem, filter="dut"):
 
     filtered = sessions.filter(filter)
 
@@ -118,6 +114,10 @@ def procplot(sessions, request, filter):
     output_dir = os.path.join(output_dir, request.module.__name__)
 
     ssh_sessions = []
+
+    def links():
+        for (sess, client) in ssh_sessions:
+            yield "{}-test.png".format(sess.endpoint)
 
     def _finish():
         for (sess, client) in ssh_sessions:
@@ -133,6 +133,7 @@ def procplot(sessions, request, filter):
             arstat.plot(path, top=10,
                         title="CPU Utilization for {}".format(sess.endpoint),
                         ylabel=r'% cpu')
+            reportitem.image("{}-test.png".format(sess.endpoint))
     request.addfinalizer(_finish)
 
     for sess in filtered:
