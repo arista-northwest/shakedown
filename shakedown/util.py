@@ -6,6 +6,7 @@ import os
 import sys
 import pprint
 import difflib
+import re
 
 def column(data, offset=0, delimeter=r"\s+"):
     """Return the specified column from data"""
