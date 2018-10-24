@@ -21,7 +21,7 @@
 }
 """
 
-def h_details(responses):
+def h_members(responses):
     #
     # lags = responses[0]["portChannels"]
 
@@ -47,5 +47,5 @@ def h_details(responses):
     return lags
 
 CMDS = [
-    ("members", ["show port-channel all-ports detailed"], h_details)
+    ("members", ["show port-channel all-ports detailed"], h_members)
 ]
