@@ -76,3 +76,6 @@ def udiff(left, right):
     for line in difflib.unified_diff(left.splitlines(), right.splitlines()):
         _diff.append(line)
     return "\n".join(_diff)
+
+def uniq(lst):
+    return list(set(lst))
