@@ -10,6 +10,7 @@ import time
 import eapi
 from shakedown.util import to_list
 from shakedown.autotest.constants import SSH_INIT_REGEX, BACKDOOR_CREDENTIALS
+from shakedown import backdoor
 
 def _ssh_send_pass(child, password):
     index = child.expect(SSH_INIT_REGEX)
@@ -62,15 +63,16 @@ class Dut():
 
     def copyfile(self, source, destination):
 
-        username, password = BACKDOOR_CREDENTIALS
-
-        scp_cmd = "scp -q {} {}@{}:{}"
-
-        child = pexpect.spawn(scp_cmd.format(source, username, self.host,
-                                             destination))
-        _ssh_send_pass(child, password)
-
-        child.close()
+        # username, password = BACKDOOR_CREDENTIALS
+        #
+        # scp_cmd = "scp -q {} {}@{}:{}"
+        #
+        # child = pexpect.spawn(scp_cmd.format(source, username, self.host,
+        #                                      destination))
+        # _ssh_send_pass(child, password)
+        #
+        # child.close()
+        backdoor.copy(self.host, source, destination)
 
     def repave(self, config, startup=False):
         """overwrites running configuration"""
