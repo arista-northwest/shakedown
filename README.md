@@ -3,18 +3,12 @@ Shakedown - Acceptance testing automation
 
 ## Installation
 
-
 ```bash
 $ git clone https://github.com/arista-northwest/shakedown.git
 $ cd shakedown
-
-use vagrant
-
-```bash
-$ vagrant up
 ```
 
-Using docker containers (jupyter and jenkins) (w/ docker-compose)
+Bring up docker containers (jupyter and jenkins) (w/ docker-compose)
 
 ```bash
 cd docker
