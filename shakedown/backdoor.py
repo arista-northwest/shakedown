@@ -214,7 +214,7 @@ class Backdoor:
                         sys.stdout.flush()
 
                         if int(time.time() - t0) >= waitfor:
-                            raise ValueError("Timeout exceeded"
+                            raise ValueError("Timeout exceeded")
 
                         time.sleep(5)
 
