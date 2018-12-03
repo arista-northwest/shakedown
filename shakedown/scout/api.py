@@ -92,8 +92,6 @@ def _set_cached(table, endpoint):
     if key not in _cached:
         _cached.append(key)
 
-
-
 def _cache(table, endpoints):
     endpoints = _get_not_cached(table, endpoints)
     if not endpoints:
