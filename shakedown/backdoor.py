@@ -261,23 +261,3 @@ def copy(host, source_path, destination_path, password="root"):
         )
     except pexpect.EOF:
         pass
-
-
-# if __name__ == '__main__':
-#     # prompt %H.%D{%H:%M:%S}%P
-#     #print(execute("yo630", "Cli -p 15 -c 'configure\rend'"))
-#     #print(sess.send("Cli -p 15"))
-#     print("copying...")
-#     copy(sys.argv[1], "backdoor.py", "/tmp/")
-#     print("copyied...")
-#     with Backdoor() as sess:
-#         #sess.install(sys.argv[1], ("admin", ""))
-#         sess.open(sys.argv[1])
-#         #sess.reload_and_wait()
-#         #print(sess.banner)
-#         #print(sess.motd)
-#         # sess.send("Cli -p 15")
-#         # sess.send("terminal length 0")
-#         # sess.send("terminal width 32767")
-#         print(sess.sendcli("show version"))
-#         print(sess.prompt)
