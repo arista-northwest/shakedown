@@ -2,6 +2,7 @@ FROM jenkins/jenkins:lts
 
 # if we want to install via apt
 USER root
+
 RUN  \
   apt-get update && \
   apt-get install -y build-essential && \
@@ -25,11 +26,10 @@ RUN  \
   pip3 install git+https://github.com/aristanetworks/arcomm.git && \
   pip install tox
 
-#RUN pip3 install numpy matplotlib pandas
-
 COPY bin/sdtest /usr/local/bin/sdtest
 RUN chmod +x /usr/local/bin/sdtest
 
+COPY job-template.xml /var/jenkins_home/jobs/Shakedown-Template/config.xml
 COPY job-template.xml /var/tmp/job-template.xml
 
 VOLUME ["/testplan", "/shakedown", "/reports"]

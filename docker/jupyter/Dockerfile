@@ -31,13 +31,6 @@ VOLUME ["/notebooks", "/shakedown"]
 
 EXPOSE 8787/tcp 8888/tcp
 
-#ENV PYTHONPATH /shakedown
-#ENV PYTHONDONTWRITEBYTECODE 1
-
-#CMD ["python3", "/shakedown/setup.py", "develop"]
-
 WORKDIR /notebooks
-
-#ENTRYPOINT ["jupyter", "notebook", "--allow-root", "--port=8888", "--no-browser", "--ip=0.0.0.0"]
 
 ENTRYPOINT ["/bin/sh", "/init.sh"]
