@@ -4,12 +4,12 @@ vars:
     # downgrade: "flash:EOS-4.18.3.1F.swi"
 
 connections:
-  veos-2:
+  veos-1:
     creds: [ admin, "" ]
     protocol: eapi+http
     tags: [ dut, tor ]
 
-  veos-3:
+  veos-2:
     creds: [ admin,  "" ]
     tags: [ sdut, csp ]
 
