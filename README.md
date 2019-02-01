@@ -22,29 +22,43 @@ docker-compose up jenkins
 ```
 Then open a browser to http://localhost:8080
 
-or install directly
+or install just the toolset directly
 
 ```bash
 $ pip3 install -r requirements.txt
-$ python setup.py install
+$ python3 setup.py install
 ```
 
-## Auto-testing
+## Demo lab setup
+
+```
+hosts:
+
+192.168.56.11 veos-1
+192.168.56.12 veos-2
+
++--------+             +--------+
+|        |             |        |
+| VEOS-1 | <=========> | VEOS-2 |
+|        |             |        |
++--------+             +--------+
+```
+
+## Command line example
 
 Basic test run using included example:
 
 ```bash
-$ autotest -v -s --output-dir ~/Desktop/_reports --config demo-config.yml tests/test_001_basics.py
-====================================== test session starts =======================================
-platform darwin -- Python 3.6.3, pytest-3.3.1, py-1.5.2, pluggy-0.6.0 -- /Users/jmather/Projects/shakedown/.direnv/python-3.6.3/bin/python
-cachedir: ../.cache
-rootdir: /Users/jmather/Projects/shakedown, inifile:
-collected 2 items
+$ cd examples
+$ sdtest -vs --config config.yml tests/test_001_basics.py
+```
 
-tests/test_001_basics.py::test_version PASSED                                              [ 50%]
-tests/test_001_basics.py::test_bogus PASSED                                                [100%]
+Or in Docker:
 
-==================================== 2 passed in 2.40 seconds ====================================
+```bash
+$ docker-compose exec jenkins /bin/bash
+jenkins@2001deadbeef:/$ cd /testplan/
+jenkins@2001deadbeef:/testplan$ sdtest -vs --config config.yml tests/test_001_basics.py
 ```
 
 Example test module

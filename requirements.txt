@@ -1,7 +1,8 @@
--e git+https://github.com/arista-northwest/eapi-py.git#egg=eapi-py
--e git+https://github.com/aristanetworks/arcomm.git#egg=arcomm
 tinydb>=3.9.0
--e git+https://github.com/schapman1974/tinymongo.git#egg=tinymongo
 Jinja2>=2.10
 mistune>=0.8.1
 pytest>=3.2.5
+pexpect>=4.6.0
+-e git+https://github.com/schapman1974/tinymongo.git#egg=tinymongo
+-e git+https://github.com/arista-northwest/eapi-py.git#egg=eapi-py
+-e git+https://github.com/aristanetworks/arcomm.git#egg=arcomm
