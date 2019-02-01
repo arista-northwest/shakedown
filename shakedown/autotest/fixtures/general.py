@@ -26,8 +26,18 @@ def sessions():
 
 @pytest.fixture(scope="session")
 def scout():
-    #scout_.gather("s?dut")
     return scout_
+
+@pytest.fixture(scope="module")
+def duts(sessions):
+    class Selector():
+        def __init__(self, sessions):
+            self.sessions = sessions
+        def select(self, dut):
+            return Dut(self.sessions, dut)
+    return Selector(sessions)
+
+connections = duts
 
 @pytest.fixture(scope="module")
 def dut(sessions):
