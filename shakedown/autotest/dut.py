@@ -27,9 +27,6 @@ def _ssh_spawn(host, username, password):
     _ssh_send_pass(child, password)
 
     return child
-#
-#
-# def sshcmd(host, creds, command)
 
 class Dut():
     def __init__(self, sessions, filt):
@@ -41,6 +38,8 @@ class Dut():
     @property
     def host(self):
         return self.filtered[0].endpoint
+
+    hostname = host
 
     @property
     def creds(self):
@@ -62,16 +61,6 @@ class Dut():
         return self.sessions.send(self.filter, commands, *args, **kwargs)[0]
 
     def copyfile(self, source, destination):
-
-        # username, password = BACKDOOR_CREDENTIALS
-        #
-        # scp_cmd = "scp -q {} {}@{}:{}"
-        #
-        # child = pexpect.spawn(scp_cmd.format(source, username, self.host,
-        #                                      destination))
-        # _ssh_send_pass(child, password)
-        #
-        # child.close()
         backdoor.copy(self.host, source, destination)
 
     def repave(self, config, startup=False):
@@ -113,37 +102,12 @@ class Dut():
         self.execute(["configure replace startup-config"])
 
     def reload(self, save=False, wait=False):
-        username, password = BACKDOOR_CREDENTIALS
+        if wait and type(wait) is not int:
+            wait = 3600
 
-        _spawn = functools.partial(pexpect.spawn, "ssh %s@%s" % (username, self.host))
-        #child = _ssh_spawn(self.host, username, password)
-        child = _spawn()
+        with backdoor.Backdoor() as bkd:
+            bkd.open(self.host)
+            bkd.reload(save=save, waitfor=wait)
 
-        _ssh_send_pass(child, password)
-
-        if save:
-            child.sendline(r'Cli -p 15 -c write')
-
-        child.sendline(r'echo reload now | Cli -p 15')
-        #child.sendline("uname -a")
-        index = child.expect([r'(\$|#) ?', pexpect.EOF])
-
-        if index == 0:
-            child.terminate()
-
-        if wait:
-            time.sleep(10)
-            while True:
-                try:
-                    with eapi.Session(self.host, auth=tuple(self.creds)) as sess:
-                        sess.send(["show hostname"])
-                        break
-                except eapi.EapiError:
-                    pass
-
-                #printf("host is not up yet")
-
-        time.sleep(30)
-
-    def reload_and_wait(self):
-        self.reload(wait=True)
+    def reload_and_wait(self, save=False):
+        self.reload(save=save,wait=True)
