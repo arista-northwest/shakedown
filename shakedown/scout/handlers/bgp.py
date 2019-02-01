@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 # Copyright (c) 2018 Arista Networks, Inc.  All rights reserved.
 # Arista Networks, Inc. Confidential and Proprietary.
-from pprint import pprint
+
 def h_summary(responses):
     records = []
     for vrf, summary in responses[0]["vrfs"].items():
