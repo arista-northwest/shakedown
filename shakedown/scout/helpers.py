@@ -18,6 +18,17 @@ def get_management_intf(filter):
         "primary_ip": {"$ne": "0.0.0.0"}
     })
 
+def get_management_vrfs(filter):
+
+     return [
+        {k:item[k] for k in ['_dut', 'vrf']}
+        for intf in api.find("interfaces.status", filter, query={
+                "name": {"$regex": "Management"},
+                "protocol_status": "up",
+                "primary_ip": {"$ne": "0.0.0.0"}
+            })
+    ]
+
 def get_viable_bgp_peers(filter):
     return api.find("bgp.peers", filter, query={"state": "Established"})
 
@@ -92,3 +103,8 @@ def get_viable_lag_member_neighbor(filter, name):
             })["_dut"]
 
             return ((local["_dut"], local["port"]), (dut, neighbor["port"]))
+
+# def get_active_macsec_interfaces(filter):
+#     return [
+#         item["name"] for item in api.find("macsec.info", filter, query={"isup": True})
+#     ]
