@@ -20,7 +20,7 @@ def pytest_addoption(parser):
     group = parser.getgroup("autotest", "autotest network device testing")
 
     group.addoption("--config", action="store", dest="sdconfig",
-                    metavar="CONFIG")
+                    default="shakedown.yml", metavar="CONFIG")
 
     # does not work... why?
     # group.addoption("--working-dir", action="store", metavar="WORKING_DIR",
