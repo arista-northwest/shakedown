@@ -16,7 +16,7 @@ class SessionError(Exception):
     pass
 
 class Session(collections.MutableMapping):
-    def __init__(self, endpoint, creds, protocol="eapi+http", tags=[]):
+    def __init__(self, endpoint, creds=["admin", ""], protocol="eapi+http", tags=[]):
 
         self.__dict__["_store"] = {
             "endpoint": endpoint,
