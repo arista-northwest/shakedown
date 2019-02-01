@@ -10,7 +10,6 @@ from shakedown.config import config
 from shakedown.session import sessions
 from shakedown.scout import handlers
 from shakedown.util import to_list
-from pprint import pprint
 
 logger = logging.getLogger(__name__)
 #logging.basicConfig(level=logging.DEBUG)
