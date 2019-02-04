@@ -5,18 +5,15 @@ vars:
 
 connections:
   veos-1:
-    creds: [ admin, "" ]
-    protocol: eapi+http
     tags: [ dut, tor ]
 
   veos-2:
-    creds: [ admin,  "" ]
     tags: [ sdut, csp ]
 
 
 tests:
   basics:
-    software_version: 4.20.5F
+    software_version: 4.21.1.1F
   ntp:
     servers: ["192.168.56.10"]
   downgrade:

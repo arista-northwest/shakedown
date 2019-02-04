@@ -23,6 +23,7 @@ def grep(regex, data, flags=0):
         if re.search(regex, line, flags):
             results.append(line)
     return "\n".join(results)
+
 def to_list(data):
     """Creates a list containing the data as a single element or a new list
     from the original if it is already a list or a tuple"""

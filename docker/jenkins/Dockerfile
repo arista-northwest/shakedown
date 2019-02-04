@@ -29,7 +29,7 @@ RUN  \
 COPY bin/sdtest /usr/local/bin/sdtest
 RUN chmod +x /usr/local/bin/sdtest
 
-COPY job-template.xml /var/jenkins_home/jobs/Shakedown-Template/config.xml
+# COPY job-template.xml /var/jenkins_home/jobs/Shakedown-Template/config.xml
 COPY job-template.xml /var/tmp/job-template.xml
 
 VOLUME ["/testplan", "/shakedown", "/reports"]
