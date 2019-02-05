@@ -99,9 +99,9 @@ def _cache(table, endpoints):
     responses = sessions._send(endpoints, list(commands), encoding='json')
 
     for response in responses:
-        hostaddr = response.host
+        hostaddr = response.session.hostaddr
 
-        if response.status != "ok":
+        if response.code != 0:
             logger.warning(response.errored)
             continue
 

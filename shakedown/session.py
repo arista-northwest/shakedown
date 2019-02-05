@@ -23,18 +23,9 @@ class Session(collections.MutableMapping):
             "endpoint": endpoint,
             "tags": tags
         }
-
         self.__dict__["_store"].update(kwargs)
 
-
-    @property
-    def eapi_params(self):
-        """Backward compatible standing for old config property"""
-        return {
-            key:value
-            for (key,value) in self.items()
-            if key not in ["endpoint", "tags"]
-        }
+        self.eapi_params = kwargs
 
     def __getattr__(self, item):
         return self._store[item]
@@ -168,18 +159,18 @@ async def _asend(filtered, commands, **kwargs):
 
         # handle the 'until' arg. it can be a dict...
         if "until" in kwargs:
-            _until = kwargs["until"]
+            until = kwargs["until"]
             del(kwargs["until"])
 
-            if isinstance(_until, dict):
-                if "condition" not in _until:
+            if isinstance(until, dict):
+                if "condition" not in until:
                     raise ValueError("'condition' expected")
-                condition = _until["condition"]
-                timeout = _until.get("timeout") or timeout
-                sleep = _until.get("sleep") or sleep
-                exclude = _until.get("exclude")
+                condition = until["condition"]
+                timeout = until.get("timeout") or timeout
+                sleep = until.get("sleep") or sleep
+                exclude = until.get("exclude")
             else:
-                condition = _until
+                condition = until
 
         while (check_time - timeout) < start_time:
 
