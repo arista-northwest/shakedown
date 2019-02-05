@@ -24,6 +24,11 @@ def grep(regex, data, flags=0):
             results.append(line)
     return "\n".join(results)
 
+def indentblock(text, spaces=0):
+    """Indent multiple lines of text to the same level"""
+    text = text.splitlines() if hasattr(text, 'splitlines') else []
+    return '\n'.join([' ' * spaces + line for line in text])
+
 def to_list(data):
     """Creates a list containing the data as a single element or a new list
     from the original if it is already a list or a tuple"""

@@ -72,3 +72,7 @@ def test_sdut(sdut):
 def test_failure():
     """Force a failure"""
     assert True == False, "True does not equal False!"
+
+def test_until(dut):
+    """test until arg"""
+    dut.execute("show clock", until={"condition": r"\:\d5", "timeout": 30, "sleep": 1})

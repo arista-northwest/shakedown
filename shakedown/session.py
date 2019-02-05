@@ -6,8 +6,9 @@ import asyncio
 import collections
 import functools
 import re
+import time
 
-import arcomm
+import eapi
 
 from shakedown.util import to_list, merge
 from shakedown.config import config
@@ -16,24 +17,23 @@ class SessionError(Exception):
     pass
 
 class Session(collections.MutableMapping):
-    def __init__(self, endpoint, creds=["admin", ""], protocol="eapi+http", tags=[]):
+    def __init__(self, endpoint, tags=[], **kwargs):
 
         self.__dict__["_store"] = {
             "endpoint": endpoint,
-            "creds": creds,
-            "protocol": protocol,
-            "tags": tags,
-            "tainted": False,
-            "alive": None
+            "tags": tags
         }
 
+        self.__dict__["_store"].update(kwargs)
+
+
     @property
-    def config(self):
+    def eapi_params(self):
         """Backward compatible standing for old config property"""
         return {
             key:value
             for (key,value) in self.items()
-            if key in ["creds", "protocol"]
+            if key not in ["endpoint", "tags"]
         }
 
     def __getattr__(self, item):
@@ -102,7 +102,7 @@ class SessionManager:
         #for endpoint, item in self._sessions.items():
         for ep, session in self._sessions.items():
             # params, tags = item
-            config = session.config
+            config = session.eapi_params
 
             keys = [session.endpoint] + session.tags
 
@@ -128,48 +128,79 @@ class SessionManager:
         use"""
         return self._send(*args, **kwargs)
 
-    def _send(self, endpoints, commands, raise_for_error=False, config={},
-              **kwargs):
+    def _send(self, endpoints, commands, callback=None, **kwargs):
 
         responses = []
         filtered = self.filter(endpoints)
+        commands = to_list(commands)
 
-        until = kwargs.get("until")
-
-        if until:
-            del(kwargs["until"]) # 'until' is not recognized by `execute_until`
-            kwargs["method"] = "execute_until"
-            kwargs["condition"] = until
-            kwargs.setdefault("exclude", False)
-            kwargs.setdefault("timeout", 30)
-            kwargs.setdefault("delay", 1)
+        kwargs.setdefault("encoding", "text")
 
         loop = asyncio.get_event_loop()
 
-        for response in loop.run_until_complete(_asend(filtered, commands,
-                                                       config=config,
-                                                       **kwargs)):
-            if raise_for_error:
-                # print(response)
-                response.raise_for_error()
+        for response in loop.run_until_complete(_asend(filtered, commands, **kwargs)):
+            # if raise_for_error:
+            response.raise_for_error()
 
+            if callback:
+                callback(response)
             responses.append(response)
 
         return responses
 
     execute = send
 
-async def _asend(filtered, commands, method="execute", config={}, **kwargs):
+async def _asend(filtered, commands, **kwargs):
     loop = asyncio.get_event_loop()
 
     tasks = []
 
-    for session in filtered:
-        config_ = session.config.copy()
-        config_.update(config)
+    def _send_until(sess, commands, **kwargs):
 
-        sess = arcomm.Session(session.endpoint, **config)
-        part = functools.partial(getattr(sess, method), commands, **kwargs)
+        # default will match on anything
+        condition = r".*"
+        timeout = 30
+        sleep = 1
+        exclude = None
+
+        start_time = time.time()
+        check_time = start_time
+
+        # handle the 'until' arg. it can be a dict...
+        if "until" in kwargs:
+            _until = kwargs["until"]
+            del(kwargs["until"])
+
+            if isinstance(_until, dict):
+                if "condition" not in _until:
+                    raise ValueError("'condition' expected")
+                condition = _until["condition"]
+                timeout = _until.get("timeout") or timeout
+                sleep = _until.get("sleep") or sleep
+                exclude = _until.get("exclude")
+            else:
+                condition = _until
+
+        while (check_time - timeout) < start_time:
+
+            response = sess.send(commands, **kwargs)
+            match = re.search(condition, "\n".join([r.text for r in response]))
+
+            if exclude:
+                if not match:
+                    return response
+            elif match:
+                return response
+
+            time.sleep(sleep)
+
+            check_time = time.time()
+
+        raise ValueError("condition did not match withing timeout period")
+
+    for session in filtered:
+        sess = eapi.Session(session.endpoint, **session.eapi_params)
+        part = functools.partial(_send_until, sess, commands, **kwargs)
         tasks.append(loop.run_in_executor(None, part))
 
     completed, pending = await asyncio.wait(tasks)
