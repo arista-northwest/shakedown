@@ -14,6 +14,36 @@ def h_sysinfo(response):
         "sysmac":  response[1]["systemMacAddress"]
     }]
 
+"""
+{
+    "peers": {
+        "shakedown.lab.lan": {
+            "delay": 0.524,
+            "jitter": 0.294,
+            "lastReceived": 1550009437.0,
+            "peerType": "unicast",
+            "reachabilityHistory": [
+                true
+            ],
+            "condition": "sys.peer",
+            "offset": 0.118,
+            "peerIpAddr": "192.168.56.10",
+            "pollInterval": 64,
+            "refid": "98.152.165.38",
+            "stratumLevel": 2
+        }
+    }
+}
+"""
+def h_ntp(response):
+    for name, peer in response[0]["peers"].items():
+        return[{
+            "name": name,
+            "type": peer["peerType"],
+            "address": peer["peerIpAddr"],
+            "stratum": peer["stratumLevel"]
+        }]
 CMDS = [
-    ("info", ["show hostname", "show version"], h_sysinfo)
+    ("info", ["show hostname", "show version"], h_sysinfo),
+    ("ntp", ["show ntp associations"], h_ntp)
 ]
