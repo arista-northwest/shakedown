@@ -13,6 +13,15 @@ import eapi
 from shakedown.util import to_list, merge
 from shakedown.config import config
 
+EAPI_PARAMS = [
+    "auth",
+    "cert",
+    "port",
+    "timeout",
+    "transport",
+    "verify"
+]
+
 class SessionError(Exception):
     pass
 
@@ -21,11 +30,17 @@ class Session(collections.MutableMapping):
 
         self.__dict__["_store"] = {
             "endpoint": endpoint,
-            "tags": tags
+            "tags": tags,
+            "auth": ("admin", "")
         }
         self.__dict__["_store"].update(kwargs)
 
-        self.eapi_params = kwargs
+    @property
+    def eapi_params(self):
+        return {k:v
+            for (k,v) in self._store.items()
+            if k in EAPI_PARAMS
+        }
 
     def __getattr__(self, item):
         return self._store[item]
