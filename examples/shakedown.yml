@@ -4,10 +4,10 @@ vars:
     # downgrade: "flash:EOS-4.18.3.1F.swi"
 
 connections:
-  veos-1:
+  veos-2:
     tags: [ dut, tor ]
 
-  veos-2:
+  veos-3:
     tags: [ sdut, csp ]
 
 
