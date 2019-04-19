@@ -7,7 +7,7 @@ from shakedown.scout import api
 def get_bgp_asn(filter, vrf="default"):
     return [
         {k:item[k] for k in ['_dut', 'asn']}
-        for item in api.find("bgp.summary", "dut", query={"vrf": vrf})
+        for item in api.find("bgp.summary", filter, query={"vrf": vrf})
     ]
 
 def get_management_intf(filter):
