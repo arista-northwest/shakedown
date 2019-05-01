@@ -116,11 +116,11 @@ class Config(collections.MutableMapping):
 
     def load(self, file):
         with open(file, "r") as fh:
-            data = yaml.load(fh.read())
+            data = yaml.full_load(fh.read())
             self._handle_config_data(data)
 
     def merge(self, data):
-        data = yaml.load(data)
+        data = yaml.full_load(data)
         self._handle_config_data(data)
 
     def mount(self, section, callback=None):

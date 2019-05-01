@@ -19,7 +19,7 @@ def sdreport(request):
     path, _, _ = util.split_nodeid(nodeid)
 
     name = request.module.__name__
-    header = yaml.load(request.module.__doc__)
+    header = yaml.full_load(request.module.__doc__)
 
     title = header.get("title", name)
     description = header.get("description", "")

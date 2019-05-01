@@ -24,7 +24,7 @@ from pprint import pprint
 @pytest.fixture(scope="module", autouse=True)
 def _auto_load_module(request, sdconfig):
 
-    header = yaml.load(request.module.__doc__)
+    header = yaml.full_load(request.module.__doc__)
 
     # merge any settings into copy of configuration
     if "settings" in header:
