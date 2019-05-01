@@ -57,5 +57,5 @@ def test_intf_up_down(sessions, scout, request):
 
     responses = sessions.send("dut",
         "show logging last {} seconds | include changed state to up".format(t2 - t1))
-
-    assert r"%LINEPROTO" in str(responses[0]), r"Should have seen LINEPROTO messages"
+    #pprint(responses)
+    assert r"%LINEPROTO" in str(responses[0][0].output), r"Should have seen LINEPROTO messages"

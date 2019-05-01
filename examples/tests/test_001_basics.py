@@ -12,7 +12,7 @@ settings:
 """
 import re
 import pytest
-import arcomm
+import eapi
 
 from pprint import pprint
 def test_version(sessions, sdconfig, testconfig, sdreportsection):
@@ -40,9 +40,9 @@ def test_bad_version(sessions, sdconfig, testconfig):
             "Software version should be {}".format(version)
 
 def test_bogus(sessions, sdconfig, testconfig):
-    """Runs a bogus command and `arcomm.ExecuteFailed` should be caught"""
+    """Runs a bogus command and `eapi.EapiResponseError` should raised"""
 
-    with pytest.raises(arcomm.ExecuteFailed):
+    with pytest.raises(eapi.EapiResponseError):
         response = sessions.send(r"dut", "show bogus")
 
 def test_config(sessions):

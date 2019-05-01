@@ -58,7 +58,9 @@ Or in Docker:
 ```bash
 $ docker-compose exec jenkins /bin/bash
 jenkins@2001deadbeef:/$ cd /testplan/
-jenkins@2001deadbeef:/testplan$ sdtest -vs --config config.yml tests/test_001_basics.py
+jenkins@2001deadbeef:/testplan$ sdtest -vs --config shakedown.yml \
+    --output-dir /reports --publish html \
+    tests/test_001_basics.py
 ```
 
 Example test module
@@ -73,11 +75,8 @@ description: |
     Make sure the DUT is on the correct software version
 
 """
-import re
-import pytest
-import arcomm
 
-def test_version(sessions, sdconfig, testconfig):
+def test_version(sessions, sdconfig, testconfig, sdreportsection):
     """Autotest will scan the class for any methods that start with 'test'."""
 
     version = testconfig["software_version"]
@@ -88,7 +87,8 @@ def test_version(sessions, sdconfig, testconfig):
             "Software version should be {}".format(version)
 
 def test_bogus(sessions, sdconfig, testconfig):
-    """Run a bogus command. should throw error"""
+    """Runs a bogus command and `arcomm.ExecuteFailed` should be caught"""
+
     with pytest.raises(arcomm.ExecuteFailed):
         response = sessions.send(r"dut", "show bogus")
 ```
@@ -97,7 +97,7 @@ def test_bogus(sessions, sdconfig, testconfig):
 
 After booting the vagrant image. Browse to: http://localhost:8008
 
-(username: _ubuntu_, password: _ubuntu_)
+(username: ubuntu, password: ubuntu)
 
 ### Example Usage
 
