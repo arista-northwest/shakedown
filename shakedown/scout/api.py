@@ -17,49 +17,49 @@ logger = logging.getLogger(__name__)
 _cached = []
 database = Database()
 
-def gather(endpoints=r".*", tables=[]):
-    tables = to_list(tables)
+# def gather(endpoints=r".*", tables=[]):
+#     tables = to_list(tables)
+#
+#     for h_name, handler in handlers.handlers:
+#
+#         for key, commands, callback in handler.CMDS:
+#
+#             t_name = h_name + "." + key
+#             #print("gathering...", type(t_name, tables, endpoint)
+#             if len(tables) > 0 and t_name not in tables:
+#                 logger.debug("skipping table '{}' due to filter".format(t_name))
+#                 continue
+#
+#             tbl = database[t_name]
+#
+#             # TODO: in order support 'text' encoding add extra args field to
+#             #       handler.CMDS
+#             responses = sessions._send(endpoints, list(commands), encoding='json')
+#
+#             for response in responses:
+#                 hostaddr = response.host
+#
+#                 if response.status != "ok":
+#                     logger.warning(response.errored)
+#                     continue
+#
+#                 #print(type(response.responses))
+#                 response = callback(response)
+#
+#                 if not isinstance(response, list):
+#                     response = [response]
+#
+#                 for item in response:
+#                     item = dict(item)
+#
+#                     if not tbl.find_one(item):
+#                         tbl.insert_one({
+#                             "_dut": hostaddr,
+#                             "_timestamp": int(time.time()),
+#                             **item
+#                         })
 
-    for h_name, handler in handlers.handlers:
-
-        for key, commands, callback in handler.CMDS:
-
-            t_name = h_name + "." + key
-            #print("gathering...", type(t_name, tables, endpoint)
-            if len(tables) > 0 and t_name not in tables:
-                logger.debug("skipping table '{}' due to filter".format(t_name))
-                continue
-
-            tbl = database[t_name]
-
-            # TODO: in order support 'text' encoding add extra args field to
-            #       handler.CMDS
-            responses = sessions._send(endpoints, list(commands), encoding='json')
-
-            for response in responses:
-                hostaddr = response.host
-
-                if response.status != "ok":
-                    logger.warning(response.errored)
-                    continue
-
-                #print(type(response.responses))
-                response = callback(response)
-
-                if not isinstance(response, list):
-                    response = [response]
-
-                for item in response:
-                    item = dict(item)
-
-                    if not tbl.find_one(item):
-                        tbl.insert_one({
-                            "_dut": hostaddr,
-                            "_timestamp": int(time.time()),
-                            **item
-                        })
-
-refresh = gather
+# refresh = gather
 
 def _get_handler(table):
     for handler_name, handler in handlers.handlers:

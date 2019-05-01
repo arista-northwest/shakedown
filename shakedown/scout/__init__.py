@@ -4,7 +4,7 @@
 
 from shakedown.scout import api
 #from . import entry
-from shakedown.scout.api import gather, find, find_one
+from shakedown.scout.api import find, find_one
 from shakedown.scout.helpers import (get_bgp_asn, get_viable_bgp_peers,
                                      get_viable_bgp_session)
 from shakedown.scout.helpers import get_viable_portchannel
