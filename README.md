@@ -95,9 +95,7 @@ def test_bogus(sessions, sdconfig, testconfig):
 
 ## IPython + Jupyter Notebooks
 
-After booting the vagrant image. Browse to: http://localhost:8008
-
-(username: ubuntu, password: ubuntu)
+After starting the docker container. Browse to: http://localhost:8888
 
 ### Example Usage
 
