@@ -13,8 +13,6 @@ from shakedown.config import config
 from shakedown.session import sessions
 from shakedown import util
 
-from arcomm.exceptions import ConnectFailed, ExecuteFailed
-
 @magics_class
 class ManagementMagics(Magics):
 

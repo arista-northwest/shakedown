@@ -7,6 +7,8 @@ import pytest
 import re
 import functools
 import os
+import warnings
+
 import pexpect
 from shakedown.util import to_list, merge
 from shakedown.config import config as sdconfig_
@@ -30,6 +32,7 @@ def scout():
 
 @pytest.fixture(scope="module")
 def duts(sessions):
+    warings.warn("`duts` fixture is deprecated, please use `sessions`. ex. `sessions.send(r'dut', [cmd, ...])`")
     class Selector():
         def __init__(self, sessions):
             self.sessions = sessions
@@ -41,10 +44,12 @@ connections = duts
 
 @pytest.fixture(scope="module")
 def dut(sessions):
+    warings.warn("`dut` fixture is deprecated, please use `sessions`. ex. `sessions.send(r'dut', [cmd, ...])`")
     return Dut(sessions, r"dut")
 
 @pytest.fixture(scope="module")
 def sdut(sessions):
+    warings.warn("`sdut` fixture is deprecated, please use `sessions`. ex. `sessions.send(r'sdut', [cmd, ...])`")
     if sessions.filter(r"sdut"):
         return Dut(sessions, r"sdut")
 

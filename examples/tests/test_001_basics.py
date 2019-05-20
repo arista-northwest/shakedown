@@ -19,10 +19,10 @@ def test_version(sessions, sdconfig, testconfig, sdreportsection):
     """Autotest will scan the class for any methods that start with 'test'."""
 
     version = testconfig["software_version"]
-    response = sessions.send(r"dut", "show version")
+    responses = sessions.send(r"dut", "show version")
 
-    for r in response:
-        assert version in str(r[0].output), \
+    for response in responses:
+        assert version in response[0].output, \
             "Software version should be {}".format(version)
 
     sdreportsection.text("random link...")
@@ -32,7 +32,7 @@ def test_version(sessions, sdconfig, testconfig, sdreportsection):
 @pytest.mark.xfail
 def test_bad_version(sessions, sdconfig, testconfig):
     """Set version to an old image.  Will fail"""
-    version = "4.16.6"
+    version = "0.1.0"
     response = sessions.send(r"dut", "show version")
 
     for r in response:
