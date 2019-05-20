@@ -1,5 +1,11 @@
 version: '3.7'
 services:
+  console:
+    build: console/
+    volumes:
+      - ../:/shakedown
+      - ../examples:/testplan
+      - ../examples/_reports:/reports
   jenkins:
     build: jenkins/
 #    environment:
@@ -18,9 +24,6 @@ services:
     ports:
       - "8888:8888"
       - "8787:8787"
-
     volumes:
       - ../:/shakedown
       - ../examples:/notebooks
-
-  

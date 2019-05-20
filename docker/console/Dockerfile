@@ -1,13 +1,15 @@
 FROM ubuntu:latest
 
 RUN  \
-  apt-get update && \
-  apt-get install -y build-essential && \
-  apt-get install -y python3 python3-dev && \
-  apt-get install -y python3-pip python3-paramiko && \
-  apt-get install -y python-pip && \
-  apt-get install -y git && \
-  apt-get install -y sshpass && \
+  apt update && \
+  apt install -y build-essential && \
+  apt install -y python3 python3-dev && \
+  apt install -y python3-pip python3-paramiko && \
+  apt install -y python-pip && \
+  apt install -y git && \
+  apt install -y sshpass
+
+RUN \
   pip3 install pandas numpy matplotlib && \
   pip3 install pexpect && \
   pip3 install future && \
@@ -20,12 +22,15 @@ RUN  \
   pip3 install tinydb && \
   pip3 install tinymongo && \
   pip3 install git+https://github.com/arista-northwest/eapi-py.git && \
-  pip3 install git+https://github.com/aristanetworks/arcomm.git && \
+  pip install tox
 
 VOLUME ["/shakedown", "/testplan", "/reports"]
 
-# COPY init.sh /init.sh
+COPY init.sh /init.sh
 
 WORKDIR /testplan
 
-ENTRYPOINT ["/bin/bash"]
+ENV PYTHONDONTWRITEBYTECODE 1
+
+# ENTRYPOINT ["/bin/bash"]
+ENTRYPOINT ["/bin/sh", "/init.sh"]
