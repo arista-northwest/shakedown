@@ -19,8 +19,6 @@ from shakedown.autotest import util
 from shakedown.util import mkdir, indentblock
 from shakedown.autotest.constants import SSH_INIT_REGEX, BACKDOOR_CREDENTIALS
 
-from pprint import pprint
-
 @pytest.fixture(scope="module", autouse=True)
 def _auto_load_module(request, sdconfig):
 
@@ -88,7 +86,6 @@ def _auto_rollback(sessions, request, sdconfig):
 
     def _rollback():
         responses = sessions.send("s?dut", "diff startup-config running-config")
-        print("rolling back...")
         for resp in responses:
             diff_ = resp[0].output.strip()
             if diff_:
