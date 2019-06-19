@@ -44,7 +44,6 @@ def _auto_monkeypatch_send(sessions, request):
     sent"""
 
     def _yamlify(response):
-        hostaddr = response.session.hostaddr
         doc = ['host: {}'.format(response.session.hostaddr)]
         #doc.append('code: {}'.format(response.code))
         doc.append('commands:')
@@ -89,19 +88,19 @@ def _auto_rollback(sessions, request, sdconfig):
 
     def _rollback():
         responses = sessions.send("s?dut", "diff startup-config running-config")
-
+        print("rolling back...")
         for resp in responses:
             diff_ = resp[0].output.strip()
             if diff_:
-                response = sessions.send(resp.host, [
+                sessions.send(resp.session.hostaddr, [
                     'configure replace {}'.format(backup)
                 ])
 
-        response = sessions.send("s?dut", ['delete {}'.format(backup)])
+        sessions.send("s?dut", ['delete {}'.format(backup)])
 
     request.addfinalizer(_rollback)
 
-    response = sessions.send("s?dut", "copy running-config {}".format(backup))
+    sessions.send("s?dut", "copy running-config {}".format(backup))
 
 @pytest.fixture(scope="session", autouse=True)
 def _auto_backdoor(sessions, request):
@@ -143,10 +142,3 @@ def _auto_install_arstat(sessions, request):
             scp.sendline(password)
             scp.expect(pexpect.EOF)
         scp.close()
-    #
-    #     ssh = pxssh.pxssh()
-    #     ssh.login(sess.endpoint, username="root", password="root")
-    #     ssh.sendline("chmod +x /persist/local/arstat")
-    #     ssh.prompt()
-    #     ssh.close()
-    # pass

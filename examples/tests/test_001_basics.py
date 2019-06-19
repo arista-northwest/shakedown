@@ -13,6 +13,8 @@ settings:
 import re
 import pytest
 import eapi
+import random
+import string
 
 from pprint import pprint
 def test_version(sessions, sdconfig, testconfig, sdreportsection):
@@ -48,7 +50,8 @@ def test_bogus(sessions, sdconfig, testconfig):
 def test_config(sessions):
     """If configuration changes are made inside a test module. They will be \
     rolled back"""
-    sessions.send(r"dut", ["configure", "username timmy nopassword", "end"])
+    secret = ''.join([random.choice(string.ascii_letters + string.digits) for n in range(8)])
+    sessions.send(r"dut", ["configure", "username timmy secret {}".format(secret), "end"])
 
 def test_dut(dut):
     """The `dut` can still be used directly, if the tag is assigned properly \
