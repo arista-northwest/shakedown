@@ -45,7 +45,7 @@ def test_bogus(sessions, sdconfig, testconfig):
     """Runs a bogus command and `eapi.EapiResponseError` should raised"""
 
     with pytest.raises(eapi.EapiResponseError):
-        response = sessions.send(r"dut", "show bogus")
+        sessions.send(r"dut", "show bogus")
 
 def test_config(sessions):
     """If configuration changes are made inside a test module. They will be \
