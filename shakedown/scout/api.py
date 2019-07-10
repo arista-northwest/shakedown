@@ -37,7 +37,7 @@ database = Database()
 #             responses = sessions._send(endpoints, list(commands), encoding='json')
 #
 #             for response in responses:
-#                 hostaddr = response.host
+#                 hostaddr = response.session.hostaddr
 #
 #                 if response.status != "ok":
 #                     logger.warning(response.errored)
