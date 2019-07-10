@@ -116,7 +116,7 @@ class Session:
         self.child.sendline(line)
 
         try:
-            index = self.child.expect(PROMPT_RE, timeout=timeout)
+            self.child.expect(PROMPT_RE, timeout=timeout)
         except pexpect.EOF:
             raise SshSessionClosedException("SSH connection has gone away")
 
