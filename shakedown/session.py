@@ -76,11 +76,15 @@ class SessionManager:
     def _handle_notifications(self, data):
         """handler is blocking should return immediately"""
 
+        endpoint = data["key"]
+        config = data["value"]
         action = data["action"]
+
         if action == "SET":
-            self.chamber(data["key"], data["value"])
+            self.chamber(endpoint, config)
         elif action == "DEL":
-            self.close(data["key"])
+            #self.close(data["key"])
+            del self._sessions[endpoint]
 
     def reset(self):
         self._sessions = collections.OrderedDict()
@@ -90,10 +94,8 @@ class SessionManager:
     def chamber(self, endpoint, config):
         """prepare to connect. but wait for first send"""
 
-        tags = []
-
         if "tags" in config and not isinstance(config["tags"], (list, tuple)):
-                config["tags"] = tags.split(",")
+                config["tags"] = config["tags"].split(",")
 
         #self._sessions[endpoint] = dict(**config)
         self._sessions[endpoint] = Session(endpoint, **config)
@@ -105,15 +107,12 @@ class SessionManager:
 
         patterns = [re.compile(pat) for pat in to_list(patterns)]
 
-        #for endpoint, item in self._sessions.items():
-        for ep, session in self._sessions.items():
-            # params, tags = item
-            config = session.eapi_params
-
+        for _, session in self._sessions.items():
+            
             keys = [session.endpoint] + session.tags
 
             for pattern in patterns:
-                for f in filter(pattern.match, keys):
+                if filter(pattern.match, keys):
                     if session not in filtered:
                         filtered.append(session)
 
@@ -209,7 +208,7 @@ async def _asend(filtered, commands, **kwargs):
         part = functools.partial(_send_until, sess, commands, **kwargs)
         tasks.append(loop.run_in_executor(None, part))
 
-    completed, pending = await asyncio.wait(tasks)
+    completed, _ = await asyncio.wait(tasks)
 
     return [task.result() for task in completed]
 
