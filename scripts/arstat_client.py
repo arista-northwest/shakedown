@@ -72,13 +72,18 @@ def plot(dataframe, path=None, top=10, title=None, ylabel=None, width=12,
     else:
         pyplot.show()
 
-def parse_data(data):
+def parse_data(data, name, tag):
     parsed = {}
+
     for entry in data:
-        if entry["name"] == "proc.stat.cpu.task" or entry["name"] == "proc.stat.cpu.pid.task":
+        if entry["name"] == name:
             value = entry["cpu_usage"]
-            name = entry["tags"]["task"]
-            parsed[name] = value
+
+            if not tag in entry["tags"]:
+                raise ValueError("Tag '%s' does not exist" % tag)
+            
+            key = entry["tags"][tag]
+            parsed[key] = value
 
     return parsed
 
@@ -92,7 +97,10 @@ def main():
                         help="Output JSON instead of plain text")
     parser.add_argument("-p", "--periods", default=60, type=int,
                         help="Specify number of records to keep.")
-
+    parser.add_argument("-n", "--name", default=None,
+                        help="plot name. i.e. -t proc.stat.cpu")
+    parser.add_argument("-t", "--tag",
+                        help="use tag for data label")
     parser.add_argument("-v", "--version", action="store_true",
                         help="Display version info")
     parser.add_argument("--plot", action="store_true", default=True)
@@ -128,7 +136,7 @@ def main():
             line = line.strip()
             data = json.loads(line)
             try:
-                dataframe = update(dataframe, parse_data(data),
+                dataframe = update(dataframe, parse_data(data, args.name, args.tag),
                                    timestamps=[datetime.utcnow()])
             except ValueError:
                 continue
