@@ -105,7 +105,6 @@ def main():
 
     args = parser.parse_args()
 
-    datatype = numpy.float
     dataframe = pandas.DataFrame()
     sorted_df = None
 
