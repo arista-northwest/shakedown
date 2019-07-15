@@ -245,7 +245,7 @@ def parse_args():
 
 def main():
     args = parse_args()
-    stats = []
+    
     while True:
         now = time.time()
 
@@ -253,13 +253,11 @@ def main():
 
         if args.number > 0:
             result = result[:args.number]
-        
-        stats += result
 
         if args.json:
-            print_json(stats)
+            print_json(result)
         else:
-            print_timeseries(stats)
+            print_timeseries(result)
         sys.stdout.flush()
 
         sleep_seconds = float(args.interval) - (time.time() - now)
