@@ -238,7 +238,7 @@ def parse_args():
     arg = parser.add_argument
     arg("pid", type=int, help="Parent process ID")
     arg("-i", "--interval", type=int, default=5, help="Specify polling interval")
-    arg("-n", "--number", type=int, default=10, help="Show top N processes")
+    arg("-n", "--number", type=int, default=0, help="Show top N processes")
     arg("-j", "--json", action="store_true", help="Print in JSON format")
     args = parser.parse_args()
     return args
