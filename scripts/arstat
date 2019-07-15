@@ -293,6 +293,51 @@ def get_proc_pid_stats():
     #print(stats)
     return stats
 
+def get_proc_pid_task_stats(pid):
+
+    name = 'proc.stat.cpu.pid.task'
+    hostname = socket.gethostname()
+
+    stats = []
+
+    tasks = glob.glob("/proc/%d/task/[0-9]*" % pid)
+
+    for path in tasks:
+        pid = os.path.split(path)[-1]
+        pid = int(pid)
+
+        try:
+            with open(os.path.join(path, "stat"), "r") as fhl:
+                timestamp = time.time()
+                stat = fhl.read().strip()
+        except IOError:
+            # process went away before we could read it.
+            continue
+
+        stat = parse_proc_pid_stat(stat)
+
+        # pylint: disable=unbalanced-tuple-unpacking
+        ticks, dtime = delta((stat['utime'] + stat['stime'], timestamp),
+                             key=(name, hostname, stat['pid'], stat['tcomm']))
+
+        pcpu = None
+
+        if None not in (ticks, dtime):
+            pcpu = calc_cpu_usage(ticks, dtime)
+
+        tags = {'pid': pid, 'hostname': hostname, 'task': stat['tcomm']}
+
+        stats.append({
+            'name': name,
+            'tags': tags,
+            'timestamp': timestamp,
+            'value': pcpu
+        })
+
+    stats = sorted(stats, key=operator.itemgetter('value'), reverse=True)
+
+    return stats
+
 # def print_table(data, max=10):
 #
 #     template = "| {:7d} | {:18s} | {:>7.3f} |"
@@ -341,6 +386,7 @@ def parse_args():
     from argparse import ArgumentParser
     parser = ArgumentParser(prog="arstat")
     arg = parser.add_argument
+    arg("-p", "--pid", type=int, default=0, help="Parent process ID")
     arg("-i", "--interval", type=int, default=5, help="Specify polling interval")
     arg("-n", "--number", type=int, default=10, help="Show top N processes")
     arg("-j", "--json", action="store_true", help="print in JSON format")
@@ -355,12 +401,21 @@ def main():
     while True:
         now = time.time()
         stats = get_proc_stat()
-        stats += get_proc_pid_stats()[:args.number]
-
+        
+        result = []
+        if args.pid > 0:
+            result = get_proc_pid_task_stats(args.pid)
+        else:
+            result = get_proc_pid_stats()
+        
+        if args.number > 0:
+            stats = stats + result[:args.number]
+        
         if args.json:
             print_json(stats)
         else:
             print_timeseries(stats)
+        
         sys.stdout.flush()
 
         sleep_seconds = float(args.interval) - (time.time() - now)
