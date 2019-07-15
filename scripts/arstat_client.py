@@ -75,7 +75,7 @@ def plot(dataframe, path=None, top=10, title=None, ylabel=None, width=12,
 def parse_data(data):
     parsed = {}
     for entry in data:
-        if entry["name"] == "proc.stat.cpu.task":
+        if entry["name"] == "proc.stat.cpu.task" or entry["name"] == "proc.stat.cpu.pid.task":
             value = entry["cpu_usage"]
             name = entry["tags"]["task"]
             parsed[name] = value
