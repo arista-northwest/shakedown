@@ -2,6 +2,8 @@
 # Copyright (c) 2017 Arista Networks, Inc.  All rights reserved.
 # Arista Networks, Inc. Confidential and Proprietary.
 
+import multiprocessing as mp
+import signal
 import pexpect
 import re
 import time
@@ -208,3 +210,90 @@ def copy(source, destination, password=""):
 
     if child.exitstatus > 0:
         raise SshCopyException(_decode(child.before))
+
+
+# def _prep_worker():
+#     """Tell workers to ignore interrupts"""
+#     signal.signal(signal.SIGINT, signal.SIG_IGN)
+
+def _bg_worker(hostaddr, auth, command):
+    sess = Session()
+    sess.open(hostaddr, auth)
+
+    response = sess.send(command)
+
+    sess.close()
+
+    return response
+
+class Background(object):
+    """Creates a pool of hosts on which to run a certain set of commands
+    asynchronously"""
+
+    def __init__(self, hostaddr, auth, command, callback=None, processes=None,
+                 delay=0, **kwargs):
+
+        self._processes = processes
+
+        # delay the return of start- give slower sessions time to initialize
+        self._delay = delay
+
+        self._callback = callback
+
+        # commands to be executed on each session
+        self._command = command
+
+        self._hostaddr = hostaddr
+        self._auth = auth
+
+        self._results = []
+
+        self._pool = mp.Pool(self._processes)  # , _prep_worker)
+
+    def __enter__(self):
+        self.start()
+        return self
+
+    def __exit__(self, type, value, traceback):
+        self.close()
+        self.join()
+        pass
+
+    def __iter__(self):
+        for item in self._results:
+            yield item.get()
+
+    @property
+    def size(self):
+        return self._size
+
+    @property
+    def delay(self):
+        return self._delay
+
+    @property
+    def hostaddr(self):
+        return self._hostaddr
+
+    @property
+    def results(self):
+        return self._results
+
+    def start(self):
+
+        args = (self._hostaddr, self._auth, self._command)
+        result = self._pool.apply_async(_bg_worker, args,
+                                        callback=self._callback)
+        self._results.append(result)
+
+        time.sleep(self._delay)
+
+    def join(self):
+        self._pool.join()
+
+    def close(self):
+        self._pool.close()
+
+    def kill(self):
+        """Terminate the pool and empty the queue"""
+        self._pool.terminate()
