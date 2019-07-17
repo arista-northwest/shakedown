@@ -24,8 +24,6 @@ except ImportError:
                       'this class'))
 import signal
 
-
-
 def floor_timestamps(timestamps):
 
     for timestamp in timestamps:
@@ -145,7 +143,7 @@ def main():
                 # count and sort by number of occurences
                 counted = dataframe.count()
                 sorted_ = counted.sort_values(ascending=False)
-                sorted_df = dataframe[list(sorted_[:10].keys())]
+                sorted_df = dataframe[list(sorted_[:args.plot_topn].keys())]
                 print(sorted_df.tail(1))
 
     except KeyboardInterrupt:
