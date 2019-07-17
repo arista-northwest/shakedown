@@ -179,7 +179,6 @@ class Session:
 
         # if we are in CLI turn off paging
         if index == 2:
-            print("disable paging...")
             self.send("terminal length 0")
             self.send("terminal width 32767")
 
