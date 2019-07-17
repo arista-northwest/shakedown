@@ -116,7 +116,6 @@ class Session:
             #raise BackdoorClosed("Backdoor is not open")
 
         self.child.sendline(line)
-
         try:
             self.child.expect(PROMPT_RE, timeout=timeout)
         except pexpect.EOF:
@@ -158,7 +157,8 @@ class Session:
 
         if index == 1:
             self.child.sendline(password)
-            _prompt_re = PROMPT_RE + [r"(?i)permission denied", pexpect.EOF]
+            _prompt_re = [r"$^", r"$^"] + PROMPT_RE + \
+                [r"(?i)permission denied", pexpect.EOF]
             index = self.child.expect(_prompt_re)
 
             if index == len(_prompt_re) - 2:
@@ -179,6 +179,7 @@ class Session:
 
         # if we are in CLI turn off paging
         if index == 2:
+            print("disable paging...")
             self.send("terminal length 0")
             self.send("terminal width 32767")
 
