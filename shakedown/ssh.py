@@ -264,10 +264,6 @@ class Background(object):
             yield item.get()
 
     @property
-    def size(self):
-        return self._size
-
-    @property
     def delay(self):
         return self._delay
 
