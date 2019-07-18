@@ -33,7 +33,7 @@ class Session(object):
             eapi_auth = DEFAULT_EAPI_AUTH
 
         eapi_sess = eapi.Session(hostaddr, auth=eapi_auth)
-        r = eapi_sess.send([
+        eapi_sess.send([
             "configure",
             "aaa root secret %s" % secret,
             "end"
