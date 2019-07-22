@@ -40,11 +40,52 @@ class Session(object):
         ])
 
     def send(self, *args, **kwargs):
-        self._session.send(*args, **kwargs)
+        return self._session.send(*args, **kwargs)
 
     def reopen(self):
         hostaddr, secret, eapi_auth = self._opener
         self.open(hostaddr, secret, eapi_auth)
+
+    def close(self):
+        self._session.close()
+
+    # def repave(self, config, startup=False):
+    #     """overwrites running configuration"""
+
+    #     repave_config = "/tmp/shakedown_repave_config"
+
+    #     fd, path = tempfile.mkstemp()
+
+    #     try:
+    #         with os.fdopen(fd, 'w') as tmp:
+    #             # do stuff with temp file
+    #             tmp.write(config)
+    #             tmp.close()
+    #             self.copyfile(path, repave_config)
+    #     finally:
+    #         os.remove(path)
+
+    #     self._session.send([
+    #         "bash timeout 30 sudo chmod 644 %s" % repave_config,
+    #     ])
+
+    #     if startup == True:
+    #         self._session.send([
+    #             "copy startup-config repave-backup",
+    #             "copy file:%s startup-config" % repave_config,
+    #         ])
+    #     else:
+    #         self._session.send("configure replace file:%s")
+
+    #     self._session.send(
+    #         ["bash timeout 30 sudo rm -f %s" % repave_config])
+
+    # def reimage(self, image):
+    #     response = self.configure(["boot system %s" % image])[0]
+
+    # def revert(self):
+    #     """revert the running configuration the startup configuration"""
+    #     self._session.send(r'configure replace startup-config')
 
     def reload(self, save=False, waitfor=0):
         if save:
