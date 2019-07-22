@@ -112,7 +112,7 @@ class SessionManager:
             keys = [session.endpoint] + session.tags
 
             for pattern in patterns:
-                if filter(pattern.match, keys):
+                for _ in filter(pattern.match, keys):
                     if session not in filtered:
                         filtered.append(session)
 
