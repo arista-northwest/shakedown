@@ -30,10 +30,7 @@ PROMPT_RE = [
     # Matches on:
     # -bash-4.1#
     # #
-    r"\-?(?:bash)?(?:\-\d\.\d)? ?[>#\$] ?$",
-
-    # # if that last command closed the session
-    # pexpect.EOF
+    r"\-?(?:bash)?(?:\-\d\.\d)? ?[>#\$] ?$"
 ]
 
 ANSI_ESCAPE_RE = r'\x1B\[[0-?]*[ -/]*[@-~]'
@@ -157,7 +154,8 @@ class Session:
 
         if index == 1:
             self.child.sendline(password)
-            _prompt_re = [r"$^", r"$^"] + PROMPT_RE + \
+            # prepend the prompts to ensure the index is 2
+            _prompt_re = [r"$^"] * 2 + PROMPT_RE + \
                 [r"(?i)permission denied", pexpect.EOF]
             index = self.child.expect(_prompt_re)
 
@@ -230,8 +228,7 @@ class Background(object):
     """Creates a pool of hosts on which to run a certain set of commands
     asynchronously"""
 
-    def __init__(self, hostaddr, auth, command, callback=None, processes=None,
-                 delay=0, **kwargs):
+    def __init__(self, hostaddr, auth, command, callback=None, delay=0, **kwargs):
 
         self._processes = processes
 
@@ -248,7 +245,7 @@ class Background(object):
 
         self._results = []
 
-        self._pool = mp.Pool(self._processes)  # , _prep_worker)
+        self._pool = mp.Pool()
 
     def __enter__(self):
         self.start()
@@ -291,5 +288,4 @@ class Background(object):
         self._pool.close()
 
     def kill(self):
-        """Terminate the pool and empty the queue"""
         self._pool.terminate()
