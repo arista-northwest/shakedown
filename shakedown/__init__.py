@@ -2,7 +2,7 @@
 # Copyright (c) 2016 Arista Networks, Inc.  All rights reserved.
 # Arista Networks, Inc. Confidential and Proprietary.
 
-__version__ = "0.5.2"
+__version__ = "0.5.3"
 
 import os
 
