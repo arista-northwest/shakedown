@@ -483,7 +483,7 @@ def parse_args():
     from argparse import ArgumentParser
     parser = ArgumentParser(prog="arstat")
     arg = parser.add_argument
-    arg("-p", "--pid", type=int, default=0, help="Parent process ID")
+    arg("-p", "--pid", default=[], action='append', help="Parent process ID")
     arg("-m", "--memory", action='store_true')
     arg("-i", "--interval", type=int, default=5, help="Specify polling interval")
     arg("-n", "--number", type=int, default=0, help="Show top N processes")
@@ -500,16 +500,18 @@ def main():
         now = time.time()
 
         if args.memory:
-            if args.pid > 0:
-                stats = get_proc_pid_task_statm(args.pid)
+            if args.pid:
+                for pid in args.pid:
+                    stats = get_proc_pid_task_statm(int(pid))
             else:
                 stats = get_proc_pid_statm()
         else:
             stats = get_proc_stat()
             
             result = []
-            if args.pid > 0:
-                result = get_proc_pid_task_stats(args.pid)
+            if args.pid:
+                for pid in args.pid:
+                    result += get_proc_pid_task_stats(int(pid))
             else:
                 result = get_proc_pid_stats()
             
