@@ -46,3 +46,10 @@ def test_background():
         print(result)
 
 
+def test_input():
+    sess = ssh.Session()
+    sess.open(SSH_HOST, auth=(SSH_USER, SSH_PASS))
+    sess.send("ssh -l shakedown localhost", prompt=r'password:', input="shakedown")
+    sess.send("logout")
+    # prove we were incepted
+    sess.send("show version")

@@ -107,12 +107,17 @@ class Session:
 
         self._opened = False
 
-    def send(self, line, timeout=30):
+    def send(self, line, prompt=None, input=None, timeout=30):
         if not self.opened:
             self.reopen()
-            #raise BackdoorClosed("Backdoor is not open")
 
         self.child.sendline(line)
+
+        if prompt:
+            index = self.child.expect([prompt], timeout=timeout)
+            if index == 0:
+                self.child.sendline(input)
+
         try:
             self.child.expect(PROMPT_RE, timeout=timeout)
         except pexpect.EOF:
@@ -225,12 +230,8 @@ def _bg_worker(hostaddr, auth, command):
     return response
 
 class Background(object):
-    """Creates a pool of hosts on which to run a certain set of commands
-    asynchronously"""
 
     def __init__(self, hostaddr, auth, command, callback=None, delay=0, **kwargs):
-
-        self._processes = processes
 
         # delay the return of start- give slower sessions time to initialize
         self._delay = delay
