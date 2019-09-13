@@ -9,7 +9,8 @@ Magic functions for Arista device testing
 import sys
 import warnings
 import jinja2
-
+import yaml
+from collections import OrderedDict
 from IPython.core import magic_arguments
 from IPython.core.magic import (Magics, magics_class, line_magic, cell_magic,
                                 line_cell_magic, on_off, needs_local_scope)
@@ -89,9 +90,43 @@ class BasicMagics(Magics):
 
         for response in sessions.send(args.endpoints, commands,
                                       encoding=args.encoding):
+            yml = _rep_response(response)
             if args.output_file:
                 util.plush("Writing output to {}".format(args.output_file))
                 with open(args.output_file, "w") as fh:
-                    fh.write(str(response) + "\n")
+                    fh.write(yml + "\n")
             else:
-                util.plush(str(response) + "\n")
+                util.plush(yml + "\n")
+
+def _rep_response(response):
+
+    def _tidy(output):
+        return "\n".join([l.strip() for l in output.splitlines()])
+
+    class literal(str): pass
+
+    def literal_presenter(dumper, data):
+        return dumper.represent_scalar('tag:yaml.org,2002:str', data, style='|')
+    
+    def ordered_dict_presenter(dumper, data):
+        return dumper.represent_dict(data.items())
+    
+    yaml.add_representer(OrderedDict, ordered_dict_presenter)
+
+    yaml.add_representer(literal, literal_presenter)
+
+    out = {}
+    for item in response:
+        hostaddr = response.session.hostaddr
+        if hostaddr not in out:
+            out[hostaddr] = []
+        
+        out[hostaddr].append(OrderedDict(
+            host=response.session.hostaddr,
+            command=item.command,
+            result=literal(_tidy(item.output))
+        ))
+        
+
+    return yaml.dump(out)
+
