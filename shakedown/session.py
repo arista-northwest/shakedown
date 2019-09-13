@@ -13,6 +13,14 @@ import eapi
 from shakedown.util import to_list, merge
 from shakedown.config import config
 
+try:
+    # attempt to patch asyncio for use with Jupyter
+    # see: https://github.com/erdewit/nest_asyncio
+    import nest_asyncio
+    nest_asyncio.apply()
+except ImportError:
+    pass
+
 EAPI_PARAMS = [
     "auth",
     "cert",
