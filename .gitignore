@@ -159,6 +159,8 @@ $RECYCLE.BIN/
 ### Vagrant ###
 .vagrant/
 
+.vscode/
+
 .envrc
 .direnv/
 .pytest_cache/
