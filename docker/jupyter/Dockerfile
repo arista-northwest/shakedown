@@ -20,10 +20,12 @@ RUN \
   pip3 install mistune && \
   pip3 install tinydb && \
   pip3 install tinymongo && \
+  pip3 install nest_asyncio && \
   pip3 install git+https://github.com/arista-northwest/eapi-py.git
 
+# tornado==4.5.3 && \
 RUN \
-  pip3 install tornado==4.5.3 && \
+  pip3 install tornado && \ 
   pip3 install jupyter
 
 COPY ipython_config.py /etc/ipython/ipython_config.py
