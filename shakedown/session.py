@@ -49,6 +49,9 @@ class Session(collections.MutableMapping):
             for (k,v) in self._store.items()
             if k in EAPI_PARAMS
         }
+    @property
+    def host(self):
+        return self.endpoint
 
     def __getattr__(self, item):
         return self._store[item]
@@ -70,6 +73,14 @@ class Session(collections.MutableMapping):
 
     def __len__(self):
         return len(self._store)
+    
+    def send(self, commands, callback=None, **kwargs):
+        """This function is monkey-patched by a fixture, so we need to maintain
+        access to the 'real' :func:`_send` function for internal
+        use"""
+        return _send([self], commands, callback, **kwargs)
+    
+    execute = send
 
 class SessionManager:
 
@@ -126,6 +137,9 @@ class SessionManager:
 
         return filtered #list(filtered.items())
 
+    def select(self, pattern):
+        return self.filter(pattern)[0]
+
     def remove(self, endpoints):
         endpoints = to_list(endpoints)
         defunct = []
@@ -135,23 +149,27 @@ class SessionManager:
         for hostname in defunct:
             del self._sessions[hostname]
 
-    def send(self, *args, **kwargs):
+    def send(self, filter, commands, callback=None, **kwargs):
         """This function is monkey-patched by a fixture, so we need to maintain
         access to the 'real' :meth:`SessionManager._send` method for internal
         use"""
-        return self._send(*args, **kwargs)
+        endpoints = self.filter(filter)
+        return _send(endpoints, commands, callback, **kwargs)
+    
+    execute = send
 
-    def _send(self, endpoints, commands, callback=None, **kwargs):
+
+def _send(endpoints, commands, callback=None, **kwargs):
 
         responses = []
-        filtered = self.filter(endpoints)
+        
         commands = to_list(commands)
 
         kwargs.setdefault("encoding", "text")
 
         loop = asyncio.get_event_loop()
 
-        for response in loop.run_until_complete(_asend(filtered, commands, **kwargs)):
+        for response in loop.run_until_complete(_asend(endpoints, commands, **kwargs)):
             # if raise_for_error:
             response.raise_for_error()
 
@@ -161,7 +179,6 @@ class SessionManager:
 
         return responses
 
-    execute = send
 
 async def _asend(filtered, commands, **kwargs):
     loop = asyncio.get_event_loop()
