@@ -9,12 +9,12 @@ import functools
 import os
 import warnings
 
-import pexpect
-from shakedown.util import to_list, merge
+from shakedown.util import merge, indentblock
+from shakedown.autotest.util import split_nodeid
+from shakedown.autotest.report import report_store
 from shakedown.config import config as sdconfig_
 from shakedown.session import sessions as sessions_
-from shakedown.autotest.dut import Dut
-#from shakedown.scout import api as scout_
+from shakedown.autotest.dut import Dut, DutManager
 from shakedown import scout as scout_
 
 @pytest.fixture(scope="module")
@@ -30,28 +30,41 @@ def sessions():
 def scout():
     return scout_
 
-@pytest.fixture(scope="module")
-def duts(sessions):
-    warnings.warn("`duts` fixture is deprecated, please use `sessions`. ex. `sessions.send(r'dut', [cmd, ...])`")
-    class Selector():
-        def __init__(self, sessions):
-            self.sessions = sessions
-        def select(self, dut):
-            return Dut(self.sessions, dut)
-    return Selector(sessions)
+@pytest.fixture(scope="function")
+def duts(request):
+    def _yamlify(response):
+        doc = ['host: {}'.format(response.session.hostaddr)]
+        #doc.append('code: {}'.format(response.code))
+        doc.append('commands:')
+
+        for item in response:
+            doc.append('  - command: {}'.format(item.command))
+            if item.text:
+                doc.append('    output: |')
+                doc.append(indentblock(str(item.text), spaces=6))
+
+        return '\n'.join(doc)
+    
+    def _callback(response):
+        nodeid = request.node.nodeid
+        path, _, _ = split_nodeid(nodeid)
+
+        if path in report_store:
+            sdreport = report_store[path]
+            section = sdreport.get_section(nodeid)
+            text = _yamlify(response)
+            section.append("codeblock", text)
+    return DutManager(callback=_callback)
 
 connections = duts
 
-@pytest.fixture(scope="module")
-def dut(sessions):
-    warnings.warn("`dut` fixture is deprecated, please use `sessions`. ex. `sessions.send(r'dut', [cmd, ...])`")
-    return Dut(sessions, r"dut")
+@pytest.fixture(scope="function")
+def dut(duts):
+    return duts.select(r"dut")
 
-@pytest.fixture(scope="module")
-def sdut(sessions):
-    warnings.warn("`sdut` fixture is deprecated, please use `sessions`. ex. `sessions.send(r'sdut', [cmd, ...])`")
-    if sessions.filter(r"sdut"):
-        return Dut(sessions, r"sdut")
+@pytest.fixture(scope="function")
+def sdut(duts):
+    return duts.select(r"sdut")
 
 @pytest.fixture(scope="module")
 def testconfig(request):

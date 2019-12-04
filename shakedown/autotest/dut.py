@@ -9,13 +9,25 @@ import functools
 import time
 
 from shakedown.util import to_list
+from shakedown import ssh
+from shakedown.session import sessions
+
+def record(func):
+    def wrapper(*args, **kwargs):
+        callback = args[0].callback
+        resp = func(*args, **kwargs)
+        if callback:
+            callback(resp)
+        return resp
+    return wrapper
+
+def _configure(commands):
+    return ["configure"] + to_list(commands) + ["end"]
 
 class Dut():
-    def __init__(self, sessions, filt):
-        self.sessions = sessions
-        self.filter = filt
-
-        self.session = self.sessions.filter(filt)[0]
+    def __init__(self, session, callback):
+        self.session = session
+        self.callback = callback
 
     @property
     def host(self):
@@ -35,13 +47,33 @@ class Dut():
     def protocol(self):
         return self.session.protocol
 
-    def execute(self, commands, *args, **kwargs):
+    @record
+    def send(self, commands, *args, **kwargs):
         commands = to_list(commands)
-        return self.sessions.send(self.filter, commands, *args, **kwargs)[0]
+        return self.session.send(commands, *args, **kwargs)[0]
 
-    send = execute_until = execute
+    execute = execute_until = send
 
     def configure(self, commands, *args, **kwargs):
-        commands = to_list(commands)
-        commands = ["configure"] + commands + ["end"]
-        return self.sessions.send(self.filter, commands, *args, **kwargs)[0]
+        return self.send(_configure(commands), *args, **kwargs)
+
+    def ssh(self, auth=None):
+        if not auth:
+            auth = self.auth
+        return ssh.session(self.host, auth=auth)
+
+class DutManager():
+    def __init__(self, callback=None):
+        self.callback = callback
+
+    def select(self, dut):
+        return Dut(sessions.filter_one(dut), self.callback)
+
+    #@record
+    def send(self, patterns, commands, **kwargs):
+        sessions.send(patterns, commands, **kwargs)
+    
+    execute = execute_until = send
+    
+    def configure(self, patterns, commands, **kwargs):
+        return self.send(patterns, _configure(commands), **kwargs)

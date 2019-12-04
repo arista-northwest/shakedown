@@ -137,7 +137,7 @@ class SessionManager:
 
         return filtered #list(filtered.items())
 
-    def select(self, pattern):
+    def filter_one(self, pattern):
         return self.filter(pattern)[0]
 
     def remove(self, endpoints):
@@ -158,27 +158,25 @@ class SessionManager:
     
     execute = send
 
-
 def _send(endpoints, commands, callback=None, **kwargs):
 
-        responses = []
-        
-        commands = to_list(commands)
+    responses = []
+    
+    commands = to_list(commands)
 
-        kwargs.setdefault("encoding", "text")
+    kwargs.setdefault("encoding", "text")
 
-        loop = asyncio.get_event_loop()
+    loop = asyncio.get_event_loop()
 
-        for response in loop.run_until_complete(_asend(endpoints, commands, **kwargs)):
-            # if raise_for_error:
-            response.raise_for_error()
+    for response in loop.run_until_complete(_asend(endpoints, commands, **kwargs)):
+        # if raise_for_error:
+        response.raise_for_error()
 
-            if callback:
-                callback(response)
-            responses.append(response)
+        if callback:
+            callback(response)
+        responses.append(response)
 
-        return responses
-
+    return responses
 
 async def _asend(filtered, commands, **kwargs):
     loop = asyncio.get_event_loop()

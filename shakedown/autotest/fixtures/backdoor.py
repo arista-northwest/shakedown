@@ -6,10 +6,10 @@ import pytest
 from shakedown.backdoor import Session
 
 @pytest.fixture(scope="module")
-def backdoor(dut, request):
+def backdoor(sessions, request):
     bkd = Session()
     request.addfinalizer(lambda: bkd.close())
 
-    bkd.open(dut.host)
+    bkd.open(sessions.filter_one(r"dut").host)
 
     return bkd

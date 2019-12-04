@@ -95,6 +95,8 @@ class Session(object):
             self._session.send(r'echo reload now | Cli -p 15')
             while self._session.alive:
                 pass
+        except ssh.SshSessionClosedException:
+            time.sleep(10)
         except pexpect.EOF:
             time.sleep(10)
 

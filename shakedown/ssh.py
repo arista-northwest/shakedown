@@ -35,6 +35,10 @@ PROMPT_RE = [
 
 ANSI_ESCAPE_RE = r'\x1B\[[0-?]*[ -/]*[@-~]'
 
+SSH_OPTIONS = [
+    "StrictHostKeyChecking=no"
+]
+
 class SshException(Exception):
     pass
 
@@ -52,6 +56,8 @@ class Session:
 
     def __init__(self):
         self.hostaddr = None
+
+        # default username/password
         self.auth = ("admin", "")
 
         # pexpect child object
@@ -64,7 +70,7 @@ class Session:
         self._opened = False
 
         # spawn cmd
-        self._spawn_cmd = "ssh -l {username} {host}"
+        self._spawn_cmd = "ssh -l {username} {options} {host}"
 
     def __enter__(self, *args, **kwargs):
         #self.spawn(self.spawn_cmd)
@@ -142,8 +148,11 @@ class Session:
             auth = self.auth
 
         username, password = auth
+
+        options = " ".join(["-o %s" % o for o in SSH_OPTIONS])
         cmd = self._spawn_cmd.format(
             username=username,
+            options=options,
             host=hostaddr
         )
 

@@ -96,7 +96,7 @@ def _cache(table, endpoints):
     if not endpoints:
         return
     table, commands, callback = _get_handler(table)
-    responses = sessions._send(endpoints, list(commands), encoding='json')
+    responses = sessions.send(endpoints, list(commands), encoding='json')
 
     for response in responses:
         hostaddr = response.session.hostaddr

@@ -11,6 +11,21 @@ from datetime import datetime
 import time
 import pytest
 
+from pexpect import pxssh
+
+try:
+    import pandas
+    import numpy
+    import matplotlib
+
+    matplotlib.use('Agg')
+    import matplotlib.pyplot as pyplot
+except ImportError:
+    # raise ValueError(('SciPy stack is not installed. Please install it '
+    #                     'from http://www.scipy.org/install.html to use '
+    #                     'this fixture'))
+    pass
+
 class ArstatClient():
 
     def __init__(self):
@@ -85,24 +100,9 @@ class ArstatClient():
         ts = pandas.Timestamp(datetime.utcnow(), tz='utc')
         self.dataframe = self.update(self.parse_data(data),
                                      timestamps=[ts])
-@pytest.fixture(scope="session")
-def load_scipy():
-    from pexpect import pxssh
-
-    try:
-        import pandas
-        import numpy
-        import matplotlib
-
-        matplotlib.use('Agg')
-        import matplotlib.pyplot as pyplot
-    except ImportError:
-        raise ValueError(('SciPy stack is not installed. Please install it '
-                          'from http://www.scipy.org/install.html to use '
-                          'this fixture'))
 
 @pytest.fixture(scope="function")
-def procplot(load_scipy, sessions, request, reportitem, filter="dut"):
+def procplot(sessions, request, reportitem, filter="dut"):
 
 
     filtered = sessions.filter(filter)
@@ -127,7 +127,9 @@ def procplot(load_scipy, sessions, request, reportitem, filter="dut"):
 
             arstat = ArstatClient()
             for line in client.before.splitlines()[1:-1]:
-                arstat.feedline(line.decode("utf-8"))
+                line = line.decode("utf-8")
+                #print(line)
+                arstat.feedline(line)
 
             path = "{}/{}-test.png".format(output_dir, sess.endpoint)
             arstat.plot(path, top=10,
@@ -140,5 +142,5 @@ def procplot(load_scipy, sessions, request, reportitem, filter="dut"):
 
         client = pxssh.pxssh()
         client.login(sess.endpoint, username="root", password="root")
-        client.sendline("python /persist/local/arstat -i 1 -j")
+        client.sendline("python /persist/local/arstat -i 1 -j -n 10")
         ssh_sessions.append((sess, client))

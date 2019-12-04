@@ -12,3 +12,16 @@ def split_nodeid(nodeid):
 
 def load_template(name, path=None):
     """Load a template from the default location or path specified"""
+
+def eapi_response_to_yaml(response):
+    doc = ['host: {}'.format(response.session.hostaddr)]
+    #doc.append('code: {}'.format(response.code))
+    doc.append('commands:')
+
+    for item in response:
+        doc.append('  - command: {}'.format(item.command))
+        if item.text:
+            doc.append('    output: |')
+            doc.append(indentblock(str(item.text), spaces=6))
+
+    return '\n'.join(doc)

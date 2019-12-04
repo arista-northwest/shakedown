@@ -15,13 +15,13 @@ import pexpect
 from pexpect import pxssh
 
 from shakedown.autotest.report import report_store
+from shakedown.autotest import dut as dut_
 from shakedown.autotest import util
 from shakedown.util import mkdir, indentblock
 from shakedown.autotest.constants import SSH_INIT_REGEX, BACKDOOR_CREDENTIALS
 
 @pytest.fixture(scope="module", autouse=True)
 def _auto_load_module(request, sdconfig):
-
     header = yaml.full_load(request.module.__doc__)
 
     # merge any settings into copy of configuration
@@ -36,44 +36,43 @@ def _auto_output_dir(request):
         output_dir = os.path.join(output_dir, request.module.__name__)
         mkdir(output_dir)
 
-@pytest.fixture(scope="function", autouse=True)
-def _auto_monkeypatch_send(sessions, request):
-    """Monkey patch the send method to call us back when any commands are
-    sent"""
+# @pytest.fixture(scope="function", autouse=True)
+# def _auto_monkeypatch_send(sessions, request):
+#     """Monkey patch the send method to call us back when any commands are
+#     sent"""
+#     def _yamlify(response):
+#         doc = ['host: {}'.format(response.session.hostaddr)]
+#         #doc.append('code: {}'.format(response.code))
+#         doc.append('commands:')
 
-    def _yamlify(response):
-        doc = ['host: {}'.format(response.session.hostaddr)]
-        #doc.append('code: {}'.format(response.code))
-        doc.append('commands:')
+#         for item in response:
+#             doc.append('  - command: {}'.format(item.command))
+#             if item.text:
+#                 doc.append('    output: |')
+#                 doc.append(indentblock(str(item.text), spaces=6))
 
-        for item in response:
-            doc.append('  - command: {}'.format(item.command))
-            if item.text:
-                doc.append('    output: |')
-                doc.append(indentblock(str(item.text), spaces=6))
+#         return '\n'.join(doc)
 
-        return '\n'.join(doc)
+#     def _callback(response):
 
-    def _callback(response):
+#         nodeid = request.node.nodeid
+#         path, _, _ = util.split_nodeid(nodeid)
 
-        nodeid = request.node.nodeid
-        path, _, _ = util.split_nodeid(nodeid)
+#         if path in report_store:
+#             sdreport = report_store[path]
+#             section = sdreport.get_section(nodeid)
+#             text = _yamlify(response)
+#             section.append("codeblock", text)
 
-        if path in report_store:
-            sdreport = report_store[path]
-            section = sdreport.get_section(nodeid)
-            text = _yamlify(response)
-            section.append("codeblock", text)
+#     def _restore_send():
+#         sessions.send = sessions._session_monitor_send
+#         del sessions._session_monitor_send
 
-    def _restore_send():
-        sessions.send = sessions._session_monitor_send
-        del sessions._session_monitor_send
+#     request.addfinalizer(_restore_send)
 
-    request.addfinalizer(_restore_send)
-
-    sessions._session_monitor_send = sessions.send
-    sessions.send = functools.partial(sessions._session_monitor_send,
-                                      callback=_callback) #, raise_for_error=True)
+#     sessions._session_monitor_send = sessions.send
+#     sessions.send = functools.partial(sessions._session_monitor_send,
+#                                       callback=_callback) #, raise_for_error=True)
 
 @pytest.fixture(scope="module", autouse=True)
 def _auto_rollback(sessions, request, sdconfig):

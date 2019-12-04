@@ -514,7 +514,7 @@ def main():
                     result += get_proc_pid_task_stats(int(pid))
             else:
                 result = get_proc_pid_stats()
-            
+
             if args.number > 0:
                 stats = stats + result[:args.number]
         

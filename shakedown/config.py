@@ -120,7 +120,7 @@ class Config(collections.MutableMapping):
             self._handle_config_data(data)
 
     def merge(self, data):
-        data = yaml.full_load(data)
+        data = yaml.safe_load(data)
         self._handle_config_data(data)
 
     def mount(self, section, callback=None):
