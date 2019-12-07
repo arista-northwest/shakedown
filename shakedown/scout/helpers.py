@@ -104,6 +104,23 @@ def get_viable_lag_member_neighbor(filter, name):
 
             return ((local["_dut"], local["port"]), (dut, neighbor["port"]))
 
+def get_viable_ip_neighbor(dut, sdut):
+    neighbors = api.find("ip.neighbors", "dut", query={})
+    for neighbor in neighbors:
+        b_interface = api.find_one("interfaces.status", r"sdut", query={
+            "protocol_status": "up",
+            "name": {"$regex": "Port|Eth"},
+            "primary_ip": neighbor["address"]
+        })
+
+        if b_interface:
+            a_interface = api.find_one("interfaces.status", r"dut", query={
+                "name": neighbor["interface"]
+            })
+            return(a_interface, b_interface)
+
+    return (None, None)
+
 # def get_active_macsec_interfaces(filter):
 #     return [
 #         item["name"] for item in api.find("macsec.info", filter, query={"isup": True})
