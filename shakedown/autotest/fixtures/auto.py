@@ -41,7 +41,7 @@ def _auto_monkeypatch_send(duts, dut, sdut, request):
 
     def _yamlify(response):
         doc = ['host: {}'.format(response.session.hostaddr)]
-        #doc.append('code: {}'.format(response.code))
+        
         doc.append('commands:')
 
         for item in response:
@@ -53,7 +53,7 @@ def _auto_monkeypatch_send(duts, dut, sdut, request):
         return '\n'.join(doc)
 
     def _callback(response):
-        print(response)
+
         nodeid = request.node.nodeid
         path, _, _ = util.split_nodeid(nodeid)
 
