@@ -15,10 +15,12 @@ from shakedown.session import sessions
 def record(func):
     def wrapper(*args, **kwargs):
         callback = args[0].callback
-        resp = func(*args, **kwargs)
+
+        responses = func(*args, **kwargs)
         if callback:
-            callback(resp)
-        return resp
+            for resp in to_list(responses):
+                callback(resp)
+        return responses
     return wrapper
 
 def _configure(commands):
@@ -71,7 +73,7 @@ class DutManager():
 
     @record
     def send(self, patterns, commands, **kwargs):
-        sessions.send(patterns, commands, **kwargs)
+        return sessions.send(patterns, commands, **kwargs)
     
     execute = execute_until = send
     

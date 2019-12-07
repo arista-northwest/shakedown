@@ -53,6 +53,7 @@ def _auto_monkeypatch_send(duts, dut, sdut, request):
         return '\n'.join(doc)
 
     def _callback(response):
+        print(response)
         nodeid = request.node.nodeid
         path, _, _ = util.split_nodeid(nodeid)
 
