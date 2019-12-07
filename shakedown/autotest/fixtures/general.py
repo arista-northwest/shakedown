@@ -30,39 +30,17 @@ def sessions():
 def scout():
     return scout_
 
-@pytest.fixture(scope="function")
+@pytest.fixture(scope="module")
 def duts(request):
-    def _yamlify(response):
-        doc = ['host: {}'.format(response.session.hostaddr)]
-        #doc.append('code: {}'.format(response.code))
-        doc.append('commands:')
-
-        for item in response:
-            doc.append('  - command: {}'.format(item.command))
-            if item.text:
-                doc.append('    output: |')
-                doc.append(indentblock(str(item.text), spaces=6))
-
-        return '\n'.join(doc)
-    
-    def _callback(response):
-        nodeid = request.node.nodeid
-        path, _, _ = split_nodeid(nodeid)
-
-        if path in report_store:
-            sdreport = report_store[path]
-            section = sdreport.get_section(nodeid)
-            text = _yamlify(response)
-            section.append("codeblock", text)
-    return DutManager(callback=_callback)
+    return DutManager()
 
 connections = duts
 
-@pytest.fixture(scope="function")
+@pytest.fixture(scope="module")
 def dut(duts):
     return duts.select(r"dut")
 
-@pytest.fixture(scope="function")
+@pytest.fixture(scope="module")
 def sdut(duts):
     return duts.select(r"sdut")
 

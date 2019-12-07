@@ -48,6 +48,9 @@ class SshSessionClosedException(SshException):
 class SshCopyException(SshException):
     pass
 
+class SshTimeoutException(SshException):
+    pass
+
 def _decode(text):
     """cleanup responses"""
     return re.sub(ANSI_ESCAPE_RE, "", text.decode("utf-8")).rstrip()
@@ -223,16 +226,14 @@ def copy(source, destination, password=""):
     if child.exitstatus > 0:
         raise SshCopyException(_decode(child.before))
 
-
-# def _prep_worker():
-#     """Tell workers to ignore interrupts"""
-#     signal.signal(signal.SIGINT, signal.SIG_IGN)
-
 def _bg_worker(hostaddr, auth, command):
     sess = Session()
     sess.open(hostaddr, auth)
 
-    response = sess.send(command)
+    try:
+        response = sess.send(command)
+    except pexpect.exceptions.TIMEOUT as exc:
+        raise SshTimeoutException(str(exc))
 
     sess.close()
 

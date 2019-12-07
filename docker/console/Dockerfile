@@ -15,7 +15,9 @@ RUN \
   pip3 install future && \
   pip3 install pytest && \
   pip3 install jinja2 && \
-  pip3 install pyyaml && \
+  pip3 install pyyaml
+
+RUN \
   pip3 install requests && \
   pip3 install sh && \
   pip3 install mistune && \

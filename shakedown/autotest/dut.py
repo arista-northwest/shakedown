@@ -69,7 +69,7 @@ class DutManager():
     def select(self, dut):
         return Dut(sessions.filter_one(dut), self.callback)
 
-    #@record
+    @record
     def send(self, patterns, commands, **kwargs):
         sessions.send(patterns, commands, **kwargs)
     

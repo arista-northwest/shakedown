@@ -36,43 +36,37 @@ def _auto_output_dir(request):
         output_dir = os.path.join(output_dir, request.module.__name__)
         mkdir(output_dir)
 
-# @pytest.fixture(scope="function", autouse=True)
-# def _auto_monkeypatch_send(sessions, request):
-#     """Monkey patch the send method to call us back when any commands are
-#     sent"""
-#     def _yamlify(response):
-#         doc = ['host: {}'.format(response.session.hostaddr)]
-#         #doc.append('code: {}'.format(response.code))
-#         doc.append('commands:')
+@pytest.fixture(scope="function", autouse=True)
+def _auto_monkeypatch_send(duts, dut, sdut, request):
 
-#         for item in response:
-#             doc.append('  - command: {}'.format(item.command))
-#             if item.text:
-#                 doc.append('    output: |')
-#                 doc.append(indentblock(str(item.text), spaces=6))
+    def _yamlify(response):
+        doc = ['host: {}'.format(response.session.hostaddr)]
+        #doc.append('code: {}'.format(response.code))
+        doc.append('commands:')
 
-#         return '\n'.join(doc)
+        for item in response:
+            doc.append('  - command: {}'.format(item.command))
+            if item.text:
+                doc.append('    output: |')
+                doc.append(indentblock(str(item.text), spaces=6))
 
-#     def _callback(response):
+        return '\n'.join(doc)
 
-#         nodeid = request.node.nodeid
-#         path, _, _ = util.split_nodeid(nodeid)
+    def _callback(response):
+        nodeid = request.node.nodeid
+        path, _, _ = util.split_nodeid(nodeid)
 
-#         if path in report_store:
-#             sdreport = report_store[path]
-#             section = sdreport.get_section(nodeid)
-#             text = _yamlify(response)
-#             section.append("codeblock", text)
+        if path in report_store:
+            sdreport = report_store[path]
+            section = sdreport.get_section(nodeid)
+            text = _yamlify(response)
+            section.append("codeblock", text)
 
-#     def _restore_send():
-#         sessions.send = sessions._session_monitor_send
-#         del sessions._session_monitor_send
-
-#     request.addfinalizer(_restore_send)
-
-#     sessions._session_monitor_send = sessions.send
-#     sessions.send = functools.partial(sessions._session_monitor_send,
-#                                       callback=_callback) #, raise_for_error=True)
+    for obj in [dut, sdut, duts]:
+        def _rollback():
+            obj.callback = None
+        request.addfinalizer(_rollback)
+        obj.callback = _callback
 
 @pytest.fixture(scope="module", autouse=True)
 def _auto_rollback(sessions, request, sdconfig):
