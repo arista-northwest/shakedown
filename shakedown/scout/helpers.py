@@ -59,6 +59,36 @@ def get_viable_bgp_ecmp_route(filter):
         "isValid": True
     })
 
+def get_viable_portchannel_intf(filter, other):
+
+    # ports = [
+    #     {key:item[key] for key in ["name", "local_port", "port"]}
+    #     for item in api.find("lldp.neighbors", filter,
+    #                          query={"name": {"$regex": other}})
+    # ]
+
+    # for port in ports:
+    #     remote = None
+    #     local = api.find_one("lag.members", filter, query={
+    #         "port": port["local_port"],
+    #         "active": True
+    #     })
+
+    #     if local:
+    #         remote = api.find_one("lag.members", other, query={
+    #             "port": port["port"],
+    #             "active": True
+    #         })
+
+    #         if remote:
+    #             return(local["name"], remote["name"])
+    
+    a, b = get_viable_portchannel(filter, other)
+    if a and b:
+        return a["name"], b["name"]
+    
+    return (None, None)
+
 def get_viable_portchannel(filter, other):
 
     ports = [
@@ -81,7 +111,7 @@ def get_viable_portchannel(filter, other):
             })
 
             if remote:
-                return(local["name"], remote["name"])
+                return(local, remote)
 
     return (None, None)
 
