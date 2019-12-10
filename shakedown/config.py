@@ -4,7 +4,6 @@
 
 import collections
 import yaml
-from pprint import pprint
 from shakedown.util import to_list, merge
 
 class _ConfigSection(collections.MutableMapping):
