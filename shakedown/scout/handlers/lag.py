@@ -2,6 +2,8 @@
 # Copyright (c) 2018 Arista Networks, Inc.  All rights reserved.
 # Arista Networks, Inc. Confidential and Proprietary.
 
+import re
+
 """
 {
     "portChannels": {
@@ -25,11 +27,13 @@ def h_members(responses):
     #
     # lags = responses[0]["portChannels"]
 
-    lags = []
+    members = []
     for name, data in responses[0]["portChannels"].items():
+        id_ = int(re.match(r"port-channel\s*(\d+)", name, re.I).group(1))
         for port, details in data["inactivePorts"].items():
-            lags.append({
+            members.append({
                 "name": name,
+                "id": id_,
                 "port": port,
                 "protocol": details.get("protocol") or "",
                 "mode": details.get("lacpMode") or "",
@@ -37,14 +41,15 @@ def h_members(responses):
             })
 
         for port, details in data["activePorts"].items():
-            lags.append({
+            members.append({
                 "name": name,
+                "id": id_,
                 "port": port,
                 "protocol": details.get("protocol") or "",
                 "mode": details.get("lacpMode") or "",
                 "active": True
             })
-    return lags
+    return members
 
 CMDS = [
     ("members", ["show port-channel all-ports detailed"], h_members)
