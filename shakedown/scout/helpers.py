@@ -3,6 +3,7 @@
 # Arista Networks, Inc. Confidential and Proprietary.
 
 from shakedown.scout import api
+from shakedown.scout import exceptions
 
 def get_bgp_asn(filter, vrf="default"):
     return [
@@ -130,9 +131,12 @@ def get_viable_lag_member_neighbor(filter, name):
         if neighbor:
             dut = api.find_one("system.info", ".*", query={
                 "fqdn": neighbor["name"]
-            })["_dut"]
+            })
+            if not dut:
+                raise exceptions.DutNotFoundException(
+                    "Dut '{}' not found in scout database".format(neighbor["name"]))
 
-            return ((local["_dut"], local["port"]), (dut, neighbor["port"]))
+            return ((local["_dut"], local["port"]), (dut["_dut"], neighbor["port"]))
 
 def get_viable_ip_neighbor(dut, sdut):
     neighbors = api.find("ip.neighbors", "dut", query={})
