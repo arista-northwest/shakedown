@@ -1,24 +1,41 @@
-# # -*- coding: utf-8 -*-
-# # Copyright (c) 2017 Arista Networks, Inc.  All rights reserved.
-# # Arista Networks, Inc. Confidential and Proprietary.
-#
-# import pexpect
+# -*- coding: utf-8 -*-
+# Copyright (c) 2017 Arista Networks, Inc.  All rights reserved.
+# Arista Networks, Inc. Confidential and Proprietary.
+
+"""Provide root access via SSH to an Arista switch
+
+Aristas have a feature that enables user to login as 'root'.  This feature is
+useful for testing and prevents getting locked out do to AAA misconfiguration.
+When logging in as root the operator is dropped into a bash shell instead of
+the standard CLI
+
+  Typical usage example:
+   
+    from shakedown import backdoor
+    sess = backdoor.Session()   
+    sess.open("switch", secret="s3cr3t", eapi_auth=("admin", "p$ssw0rd"))
+    response = sess.send("uname -a")
+"""
+
 import sys
 import time
 
 import eapi
 import pexpect
+
 from shakedown import ssh
 
 DEFAULT_EAPI_AUTH = ("admin", "")
 
 class Session(object):
-
+    """Connect to an arista switch using the root user.  This bypasses AAA settings."""
+    
     def __init__(self):
         self._session = ssh.Session()
         self._opener = None
 
     def open(self, hostaddr, secret="root", eapi_auth=None):
+        """Opens a new backdoor session"""
         auth = ("root", secret)
         try:
             self._session.open(hostaddr, auth)
@@ -29,6 +46,8 @@ class Session(object):
         self._session.open(hostaddr, auth)
 
     def install(self, hostaddr, secret="root", eapi_auth=None):
+        """Installs the root user"""
+        
         if not eapi_auth:
             eapi_auth = DEFAULT_EAPI_AUTH
 
@@ -40,13 +59,18 @@ class Session(object):
         ])
 
     def send(self, *args, **kwargs):
+        """Send a command"""
+
         return self._session.send(*args, **kwargs)
 
     def reopen(self):
+        """Re-open a session"""
+
         hostaddr, secret, eapi_auth = self._opener
         self.open(hostaddr, secret, eapi_auth)
 
     def close(self):
+        """Close the session, can be reopened later with `reopen`"""
         self._session.close()
 
     # def repave(self, config, startup=False):

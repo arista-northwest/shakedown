@@ -39,8 +39,3 @@ class Database(TinyMongoDatabase):
 
 class Collection(TinyMongoCollection):
     pass
-    # def find(self, filter=None, sort=None, skip=None, limit=None,
-    #          *args, **kwargs):
-    #
-    #     return super(Collection, self).find(filter, sort, skip, limit, *args,
-    #                                         **kwargs)
