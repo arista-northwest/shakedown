@@ -25,10 +25,11 @@ RUN \
   pip3 install tinydb && \
   pip3 install tinymongo && \
   pip3 install git+https://github.com/arista-northwest/eapi-py.git && \
+  pip3 install git+https://github.com/arista-northwest/shakedown.git && \
   pip install tox
 
-COPY bin/sdtest /usr/local/bin/sdtest
-RUN chmod +x /usr/local/bin/sdtest
+# COPY bin/sdtest /usr/local/bin/sdtest
+# RUN chmod +x /usr/local/bin/sdtest
 
 # COPY job-template.xml /var/jenkins_home/jobs/Shakedown-Template/config.xml
 COPY job-template.xml /var/tmp/job-template.xml
@@ -41,7 +42,7 @@ USER jenkins
 
 RUN /usr/local/bin/install-plugins.sh \
   git github-branch-source python jdk-tool command-launcher \
-  bouncycastle-api filesystem_scm
+  bouncycastle-api filesystem_scm credentials
 
 # RUN cat /var/tmp/job-template.xml | \
 # java -jar /var/jenkins_home/war/WEB-INF/jenkins-cli.jar \
