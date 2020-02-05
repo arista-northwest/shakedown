@@ -5,13 +5,18 @@ vars:
     # downgrade: "flash:EOS-4.18.3.1F.swi"
 
 connections:
-  veos2.lab.lan:
+  veos2:
     auth: ["admin", ""]
     transport: http
     tags: [ dut, tor ]
 
-  veos3.lab.lan:
+  veos3:
     tags: [ sdut, csp ]
+
+publishers:
+  mongodb:
+    host: 127.0.0.1
+    port: 27017
 
 tests:
   test_001_basics:
