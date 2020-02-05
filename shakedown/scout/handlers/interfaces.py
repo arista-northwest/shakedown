@@ -40,7 +40,7 @@ from ipaddress import ip_address, ip_network
 
 def intf_short_name(name):
 
-    match = re.search("(ma|lo|et|po|vlan)[a-z\-]*([\d\/\.]+)", name, re.I)
+    match = re.search(r"(ma|lo|et|po|vlan)[a-z\-]*([\d\/\.]+)", name, re.I)
     if match:
         return "".join(match.groups())
 
