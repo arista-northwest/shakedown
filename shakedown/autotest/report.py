@@ -1,4 +1,3 @@
-
 import json
 import os
 import codecs
@@ -8,24 +7,10 @@ from functools import partial
 from collections import OrderedDict
 from shakedown.util import mkdir
 
-styles = [
-    "h1",
-    "h2",
-    "h3",
-    "h4",
-    "text",
-    "codeblock",
-    "link",
-    "image"
-]
+styles = ["h1", "h2", "h3", "h4", "text", "codeblock", "link", "image"]
 
-outcomes = [
-    "passed",
-    "failed",
-    "skipped",
-    "errored",
-    "unknown"
-]
+outcomes = ["passed", "failed", "skipped", "errored", "unknown"]
+
 
 class ReportSection:
     def __init__(self):
@@ -39,7 +24,8 @@ class ReportSection:
         if name in styles:
             return partial(self.append, name)
         else:
-            raise AttributeError("'{}' object has no attribute '{}'".format(self.__class__.__name__, name))
+            raise AttributeError("'{}' object has no attribute '{}'".format(
+                self.__class__.__name__, name))
 
     @property
     def outcome(self):
@@ -56,8 +42,11 @@ class ReportSection:
         if style not in styles:
             raise ValueError("Unrecognized item style '{}'".format(style))
 
-        self.elements.append({"style": style, "content": str(content),
-                              "keywords": kwargs})
+        self.elements.append({
+            "style": style,
+            "content": str(content),
+            "keywords": kwargs
+        })
 
     def to_dict(self):
         return {
@@ -67,11 +56,12 @@ class ReportSection:
             "traceback": str(self.traceback) if self.traceback else None
         }
 
-class Report:
 
-    def __init__(self, title, description):
+class Report:
+    def __init__(self, name, title, description):
 
         self.heading = {
+            "name": name,
             "title": title,
             "description": description,
             "created_at": str(datetime.utcnow()),
@@ -89,7 +79,7 @@ class Report:
 
     def to_dict(self):
 
-        result = OrderedDict(heading=self.heading)
+        result = OrderedDict(self.heading)
         result["sections"] = []
 
         for section_id, section in self._sections.items():
@@ -98,5 +88,6 @@ class Report:
             result["sections"].append(section)
 
         return result
+
 
 report_store = {}

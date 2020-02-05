@@ -12,6 +12,7 @@ from shakedown.autotest import util
 
 from shakedown.autotest import publishers
 
+
 @pytest.fixture(scope="module", autouse=True)
 def sdreport(request):
 
@@ -23,7 +24,7 @@ def sdreport(request):
 
     title = header.get("title", name)
     description = header.get("description", "")
-    report = Report(title.strip(), description.strip())
+    report = Report(name, title.strip(), description.strip())
 
     report_store[path] = report
 
@@ -50,6 +51,7 @@ def sdreport(request):
 
     return report
 
+
 @pytest.fixture(scope="function")
 def sdreportsection(request):
 
@@ -59,5 +61,6 @@ def sdreportsection(request):
     sdreport = report_store[path]
 
     return sdreport.get_section(nodeid)
+
 
 reportitem = sdreportsection

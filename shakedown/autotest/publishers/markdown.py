@@ -5,10 +5,10 @@
 import jinja2
 import os
 
-TEMPLATE = """{{ heading.title }}
-{{ "===" }}
+TEMPLATE = """{{ title }}
+===
 
-{{ heading.description }}
+{{ description }}
 
 {% for section in sections %}
 
