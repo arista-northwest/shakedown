@@ -21,7 +21,8 @@ RUN \
   pip3 install tinydb && \
   pip3 install tinymongo && \
   pip3 install nest_asyncio && \
-  pip3 install git+https://github.com/arista-northwest/eapi-py.git
+  pip3 install git+https://github.com/arista-northwest/eapi-py.git && \
+  pip3 install git+https://github.com/arista-northwest/shakedown.git
 
 # tornado==4.5.3 && \
 RUN \
