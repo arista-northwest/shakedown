@@ -35,7 +35,7 @@ def h_peers(responses):
 def h_received_routes(responses):
     records = []
     for vrf, summary in responses[0]["vrfs"].items():
-        for routes, detail in summary["bgpRouteEntries"].items():
+        for _, detail in summary["bgpRouteEntries"].items():
             for route in detail["bgpRoutePaths"]:
                 records.append({
                     "vrf": vrf,
