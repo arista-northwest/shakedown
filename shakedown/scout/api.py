@@ -70,8 +70,8 @@ def _get_handler(table):
 
     raise ValueError("table '{}' not found".format(table))
 
-def _get_endpoints(filter):
-    return [sess.endpoint for sess in sessions.filter(filter)]
+def _get_endpoints(filt):
+    return [sess.endpoint for sess in sessions.filter(filt)]
 
 def _prepare_query(endpoints=None, query={}):
     if endpoints:
@@ -128,8 +128,8 @@ def _cache(table, endpoints):
 
         _set_cached(str(table), hostaddr)
 
-def find(table, endpoints=None, query={}):
-    endpoints = _get_endpoints(endpoints)
+def find(table, filt=None, query={}):
+    endpoints = _get_endpoints(filt)
 
     _cache(table, endpoints)
 
@@ -141,8 +141,8 @@ def find(table, endpoints=None, query={}):
 
     return result
 
-def find_one(table, endpoints=None, query={}):
-    endpoints = _get_endpoints(endpoints)
+def find_one(table, filt=None, query={}):
+    endpoints = _get_endpoints(filt)
 
     _cache(table, endpoints)
 

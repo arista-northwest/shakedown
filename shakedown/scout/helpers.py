@@ -5,33 +5,33 @@
 from shakedown.scout import api
 from shakedown.scout import exceptions
 
-def get_bgp_asn(filter, vrf="default"):
+def get_bgp_asn(filt, vrf="default"):
     return [
         {k:item[k] for k in ['_dut', 'asn']}
-        for item in api.find("bgp.summary", filter, query={"vrf": vrf})
+        for item in api.find("bgp.summary", filt, query={"vrf": vrf})
     ]
 
-def get_management_intf(filter):
+def get_management_intf(filt):
 
-    return api.find_one("interfaces.status", filter, query={
+    return api.find_one("interfaces.status", filt, query={
         "name": {"$regex": "Management"},
         "protocol_status": "up",
         "primary_ip": {"$ne": "0.0.0.0"}
     })
 
-def get_management_vrfs(filter):
+def get_management_vrfs(filt):
 
      return [
         {k:item[k] for k in ['_dut', 'vrf']}
-        for intf in api.find("interfaces.status", filter, query={
+        for item in api.find("interfaces.status", filt, query={
                 "name": {"$regex": "Management"},
                 "protocol_status": "up",
                 "primary_ip": {"$ne": "0.0.0.0"}
             })
     ]
 
-def get_viable_bgp_peers(filter):
-    return api.find("bgp.peers", filter, query={"state": "Established"})
+def get_viable_bgp_peers(filt):
+    return api.find("bgp.peers", filt, query={"state": "Established"})
 
 def get_viable_bgp_session(afilter, bfilter=".*"):
 
@@ -51,8 +51,8 @@ def get_viable_bgp_session(afilter, bfilter=".*"):
 
     return (aside, bside)
 
-def get_viable_bgp_ecmp_route(filter):
-    return api.find_one("bgp.received_routes", filter, query={
+def get_viable_bgp_ecmp_route(filt):
+    return api.find_one("bgp.received_routes", filt, query={
         "isActive": True,
         "isEcmp": True,
         "isEcmpHead": True,
@@ -60,17 +60,17 @@ def get_viable_bgp_ecmp_route(filter):
         "isValid": True
     })
 
-def get_viable_portchannel_intf(filter, other):
+def get_viable_portchannel_intf(filt, other):
 
     # ports = [
     #     {key:item[key] for key in ["name", "local_port", "port"]}
-    #     for item in api.find("lldp.neighbors", filter,
+    #     for item in api.find("lldp.neighbors", filt,
     #                          query={"name": {"$regex": other}})
     # ]
 
     # for port in ports:
     #     remote = None
-    #     local = api.find_one("lag.members", filter, query={
+    #     local = api.find_one("lag.members", filt, query={
     #         "port": port["local_port"],
     #         "active": True
     #     })
@@ -84,23 +84,23 @@ def get_viable_portchannel_intf(filter, other):
     #         if remote:
     #             return(local["name"], remote["name"])
     
-    a, b = get_viable_portchannel(filter, other)
+    a, b = get_viable_portchannel(filt, other)
     if a and b:
         return a["name"], b["name"]
     
     return (None, None)
 
-def get_viable_portchannel(filter, other):
+def get_viable_portchannel(filt, other):
 
     ports = [
         {key:item[key] for key in ["name", "local_port", "port"]}
-        for item in api.find("lldp.neighbors", filter,
+        for item in api.find("lldp.neighbors", filt,
                              query={"name": {"$regex": other}})
     ]
 
     for port in ports:
         remote = None
-        local = api.find_one("lag.members", filter, query={
+        local = api.find_one("lag.members", filt, query={
             "port": port["local_port"],
             "active": True
         })
@@ -116,15 +116,15 @@ def get_viable_portchannel(filter, other):
 
     return (None, None)
 
-def get_viable_lag_member_neighbor(filter, name):
+def get_viable_lag_member_neighbor(filt, name):
 
-    local = api.find_one("lag.members", filter, query={
+    local = api.find_one("lag.members", filt, query={
         "name": name,
         "active": True
     })
 
     if local:
-        neighbor = api.find_one("lldp.neighbors", filter, query={
+        neighbor = api.find_one("lldp.neighbors", filt, query={
             "local_port": local["port"]
         })
 
@@ -155,7 +155,7 @@ def get_viable_ip_neighbor(dut, sdut):
 
     return (None, None)
 
-# def get_active_macsec_interfaces(filter):
+# def get_active_macsec_interfaces(filt):
 #     return [
-#         item["name"] for item in api.find("macsec.info", filter, query={"isup": True})
+#         item["name"] for item in api.find("macsec.info", filt, query={"isup": True})
 #     ]
