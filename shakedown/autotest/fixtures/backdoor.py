@@ -6,7 +6,7 @@ import pytest
 from shakedown.backdoor import Session
 
 @pytest.fixture(scope="module")
-def backdoor(sessions, request):
+def backdoor(sessions, sdconfig, request):
     bkd = Session()
     request.addfinalizer(lambda: bkd.close())
 

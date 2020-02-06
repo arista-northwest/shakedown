@@ -6,18 +6,18 @@ import os
 
 from shakedown import backdoor
 
-SSH_HOST = os.environ.get("SSH_HOST", "veos-1")
-EAPI_USER = os.environ.get("EAPI_USER", "admin")
-EAPI_PASS = os.environ.get("EAPI_PASS", "")
-SSH_ROOT_PASS = os.environ.get("SSH_ROOT_PASS", "censored")
+SSH_HOST = os.environ.get("SSH_HOST", "veos1")
+SSH_USER = os.environ.get("EAPI_USER", "admin")
+SSH_PASS = os.environ.get("EAPI_PASS", "")
+BACKDOOR_SECRET = os.environ.get("BACKDOOR_SECRET", "censored")
 
 def test_backdoor():
     sess = backdoor.Session()
-    sess.open(SSH_HOST, secret=SSH_ROOT_PASS, eapi_auth=(EAPI_USER, EAPI_PASS))
+    sess.open(SSH_HOST, secret=BACKDOOR_SECRET, auth=(SSH_USER, SSH_PASS))
     sess.send("uname -a")
 
 def test_reload():
     sess = backdoor.Session()
-    sess.open(SSH_HOST, secret=SSH_ROOT_PASS, eapi_auth=(EAPI_USER, EAPI_PASS))
+    sess.open(SSH_HOST, secret=BACKDOOR_SECRET, auth=(SSH_USER, SSH_PASS))
 
-    sess.reload(waitfor=3600)
+    sess.do("reload", waitfor=3600)
