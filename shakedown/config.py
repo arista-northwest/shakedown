@@ -2,11 +2,11 @@
 # Copyright (c) 2016 Arista Networks, Inc.  All rights reserved.
 # Arista Networks, Inc. Confidential and Proprietary.
 
-import collections
+import collections.abc
 import yaml
 from shakedown.util import to_list, merge
 
-class _ConfigSection(collections.MutableMapping):
+class _ConfigSection(collections.abc.MutableMapping):
     def __init__(self):
 
         self._subscribers = []
@@ -69,7 +69,10 @@ class _VarsSection(_ConfigSection):
 class _TestsSection(_ConfigSection):
     pass
 
-class Config(collections.MutableMapping):
+class _PublishersSection(_ConfigSection):
+    pass
+
+class Config(collections.abc.MutableMapping):
 
     def __init__(self):
 
@@ -77,7 +80,8 @@ class Config(collections.MutableMapping):
             'settings': _ConfigSection(),
             'vars': _VarsSection(),
             'connections': _ConnectionsSection(),
-            'tests': _TestsSection()
+            'tests': _TestsSection(),
+            'publishers': _PublishersSection()
         }
 
     def __delitem__(self, key):
