@@ -2,11 +2,21 @@
 # Copyright (c) 2016 Arista Networks, Inc.  All rights reserved.
 # Arista Networks, Inc. Confidential and Proprietary.
 
-import collections.abc
+from collections import abc
 import yaml
 from shakedown.util import to_list, merge
 
-class _ConfigSection(collections.abc.MutableMapping):
+SECTIONS = [
+    'settings',
+    'vars',
+    'connections',
+    'tests',
+    'scout',
+    'publishers',
+    'backdoor'
+]
+
+class _ConfigSection(abc.MutableMapping):
     def __init__(self):
 
         self._subscribers = []
@@ -60,29 +70,12 @@ class _ConfigSection(collections.abc.MutableMapping):
 
         return self
 
-class _ConnectionsSection(_ConfigSection):
-    pass
-
-class _VarsSection(_ConfigSection):
-    pass
-
-class _TestsSection(_ConfigSection):
-    pass
-
-class _PublishersSection(_ConfigSection):
-    pass
-
-class Config(collections.abc.MutableMapping):
+class Config(abc.MutableMapping):
 
     def __init__(self):
-
-        self._store = {
-            'settings': _ConfigSection(),
-            'vars': _VarsSection(),
-            'connections': _ConnectionsSection(),
-            'tests': _TestsSection(),
-            'publishers': _PublishersSection()
-        }
+        self._store = None
+        self.initialize()
+        print (self._store)
 
     def __delitem__(self, key):
         del self._store[key]
@@ -106,13 +99,11 @@ class Config(collections.abc.MutableMapping):
         _config = {}
 
         for section, _data in data.items():
-            if not isinstance(_data, (list, dict)):
-                raise ValueError("only sections at top level...")
 
             if section not in self._store:
                 raise KeyError("Unknown section '{}'".format(section))
 
-            self._store[section].update(_data)
+            self._store[section].update(_data or {})
 
     def dump(self, **kwargs):
         return yaml.dump(self.to_dict(), **kwargs)
@@ -133,12 +124,7 @@ class Config(collections.abc.MutableMapping):
         return self._store[section].mount(callback)
 
     def initialize(self):
-        self._handle_config_data({
-            'settings': {},
-            'vars': {},
-            'connections': {},
-            'tests': {}
-        })
+        self._store = { s: _ConfigSection() for s in SECTIONS }
 
     def to_dict(self):
         _config = {}

@@ -51,7 +51,7 @@ def testconfig(request):
     tests = sdconfig_.mount("tests")
     filtered = {}
 
-    vars = sdconfig_.mount("vars")
+    vars_ = sdconfig_.mount("vars")
 
     _match = re.search(r"test_(\d+_([\w_]+))", names[0])
     if _match:
@@ -62,4 +62,4 @@ def testconfig(request):
         if item in tests:
             filtered = tests[item]
 
-    return merge(filtered, vars)
+    return merge(filtered, vars_)

@@ -9,9 +9,9 @@ connections:
     auth: ["admin", ""]
     transport: http
     tags: [ dut, tor ]
-
   veos3:
     tags: [ sdut, csp ]
+
 
 publishers:
   mongodb:
@@ -21,3 +21,5 @@ publishers:
 tests:
   test_001_basics:
     software_version: 4.20.5F
+  
+scout:
