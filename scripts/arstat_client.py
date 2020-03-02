@@ -12,7 +12,7 @@ from pprint import pprint
 from datetime import datetime
 
 try:
-    import pandas
+    import pandas as pd
     import numpy
     import matplotlib
 
@@ -29,7 +29,7 @@ def floor_timestamps(timestamps):
     for timestamp in timestamps:
         timestamp = datetime.fromtimestamp(timestamp)
 
-def update(dataframe, data, timestamps=None, start=None, end=None, freq=None):
+def update(dataframe, data, timestamps=None, freq=None):
     """\
     accepts data in 2 forms:
         {"a": [1, 2, 3, 4], "b": [1, 2, 3, 4]}
@@ -41,10 +41,9 @@ def update(dataframe, data, timestamps=None, start=None, end=None, freq=None):
         end + freq
     """
 
-    index = pandas.DatetimeIndex(timestamps, freq=freq, periods=1,
-                                 start=start, end=end)
+    index = pd.to_datetime(timestamps)
 
-    newframe = pandas.DataFrame(data, index, columns=list(data.keys()),
+    newframe = pd.DataFrame(data, index, columns=list(data.keys()),
                              dtype=numpy.float)
 
     return dataframe.combine_first(newframe)
@@ -72,15 +71,15 @@ def plot(dataframe, path=None, top=10, title=None, ylabel=None, width=12,
 
 def parse_data(data, name, tag):
     parsed = {}
-
     for entry in data:
         if entry["name"] == name:
             value = entry["cpu_usage"]
-
+            
             if not tag in entry["tags"]:
                 raise ValueError("Tag '%s' does not exist" % tag)
             
             key = entry["tags"][tag]
+
             parsed[key] = value
 
     return parsed
@@ -111,7 +110,7 @@ def main():
 
     args = parser.parse_args()
 
-    dataframe = pandas.DataFrame()
+    dataframe = pd.DataFrame()
     sorted_df = None
 
     def sigint_handler(sig, frame):
@@ -139,7 +138,7 @@ def main():
             except ValueError:
                 continue
 
-            with pandas.option_context('display.max_rows', None, 'display.max_columns', None):
+            with pd.option_context('display.max_rows', None, 'display.max_columns', None):
                 # count and sort by number of occurences
                 counted = dataframe.count()
                 sorted_ = counted.sort_values(ascending=False)
