@@ -75,7 +75,6 @@ class Config(abc.MutableMapping):
     def __init__(self):
         self._store = None
         self.initialize()
-        print (self._store)
 
     def __delitem__(self, key):
         del self._store[key]
