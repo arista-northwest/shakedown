@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 # Copyright (c) 2020 Arista Networks, Inc.  All rights reserved.
 # Arista Networks, Inc. Confidential and Proprietary.
-
 """Provide root access via SSH to an Arista switch
 
 Aristas have a feature that enables user to login as 'root'.  This feature is
@@ -21,12 +20,15 @@ import sys
 import time
 import importlib
 
-import eapi
-import pexpect
 from functools import partial
+
+import pexpect
+import eapi
+
 from shakedown import ssh
 
 DEFAULT_SSH_AUTH = ("admin", "")
+
 
 class Session(object):
     """Connect to an arista switch using the root user.  This bypasses AAA settings."""
@@ -36,23 +38,24 @@ class Session(object):
 
     def __getattr__(self, attr):
         mod = importlib.import_module("shakedown.backdoor.actions.%s" % attr)
-        
+
         return partial(mod.run, self)
 
     def do(self, command, *args, **kwargs):
-        mod = importlib.import_module("shakedown.backdoor.actions.%s" % command)
+        mod = importlib.import_module("shakedown.backdoor.actions.%s" %
+                                      command)
         return mod.run(self, *args, **kwargs)
 
     def open(self, hostaddr, secret="root", auth=None):
         """Opens a new backdoor session"""
         _opener = partial(self._session.open, hostaddr, ("root", secret))
-        
+
         try:
             _opener()
         except ssh.SshException:
             self.install(hostaddr, auth, secret)
             _opener()
-        
+
         self._opener = _opener
 
     def install(self, hostaddr, auth=None, secret="root"):
@@ -63,13 +66,13 @@ class Session(object):
 
         sess = ssh.Session()
         sess.open(hostaddr, auth=auth)
-        
+
         # eapi_sess.send(["configure", "aaa root secret %s" % secret, "end"])
         sess.send("configure")
         sess.send("aaa root secret %s" % secret)
         sess.send("end")
         sess.close()
-    
+
     def send(self, *args, **kwargs):
         """Send a command"""
 
@@ -84,12 +87,5 @@ class Session(object):
         """Close the session, can be reopened later with `reopen`"""
         self._session.close()
 
-    
-    # def reimage(self, image):
-    #     response = self.configure(["boot system %s" % image])[0]
-
-    # def revert(self):
-    #     """revert the running configuration the startup configuration"""
-    #     self._session.send(r'configure replace startup-config')
 
 Backdoor = Session
