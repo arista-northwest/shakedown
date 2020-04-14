@@ -12,7 +12,7 @@ the standard CLI
    
     from shakedown import backdoor
     sess = backdoor.Session()   
-    sess.open("switch", secret="s3cr3t", eapi_auth=("admin", "p$ssw0rd"))
+    sess.open("switch", secret="s3cr3t", auth=("admin", "p$ssw0rd"))
     response = sess.send("uname -a")
 """
 
@@ -23,7 +23,6 @@ import importlib
 from functools import partial
 
 import pexpect
-import eapi
 
 from shakedown import ssh
 
@@ -66,8 +65,6 @@ class Session(object):
 
         sess = ssh.Session()
         sess.open(hostaddr, auth=auth)
-
-        # eapi_sess.send(["configure", "aaa root secret %s" % secret, "end"])
         sess.send("configure")
         sess.send("aaa root secret %s" % secret)
         sess.send("end")
