@@ -10,9 +10,8 @@ description: |
 settings:
     auto_rollback: true
 """
-import re
+
 import pytest
-import eapi
 import random
 import string
 
@@ -100,9 +99,13 @@ def test_until(dut):
                 })
 
 
-def test_backdoor(backdoor, dut):
-    backdoor.send("uname -a")
+# def test_backdoor(backdoor, dut):
+#     backdoor.send("uname -a")
 
-    response = backdoor.repave(config="hostname sdfsdfgasdfg")
+#     backdoor.reload(waitfor=300)
 
-    print(response)
+def test_eos_fixture(get_version_ssh, dut):
+    print(get_version_ssh(dut))
+
+def test_reload(reload, dut):
+    reload(dut)

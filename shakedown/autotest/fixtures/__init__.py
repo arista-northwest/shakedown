@@ -11,5 +11,7 @@ from .reporting import sdreport, sdreportsection
 from .plotter import procplot
 from .backdoor import backdoor
 
+from .eos import reload, get_version_ssh
+
 # legacy
 from .reporting import sdreportsection as reportitem
