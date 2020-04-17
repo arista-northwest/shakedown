@@ -88,8 +88,9 @@ class BasicMagics(Magics):
         template = jinja2.Template(cell)
         commands = template.render(config).splitlines()
 
-        for response in sessions.send(args.endpoints, commands,
-                                      encoding=args.encoding):
+        commands = [cmd for cmd in commands if cmd]
+
+        for response in sessions.send(args.endpoints, commands, encoding=args.encoding):
             yml = _rep_response(response)
             if args.output_file:
                 util.plush("Writing output to {}".format(args.output_file))
