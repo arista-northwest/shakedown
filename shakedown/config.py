@@ -53,6 +53,7 @@ class _ConfigSection(abc.MutableMapping):
 
     def _notify(self, action, key, value):
         for cb in self._subscribers:
+            #print("Calling... %s" % cb)
             cb({
                 "section": self,
                 "action": action,
