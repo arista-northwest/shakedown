@@ -16,6 +16,12 @@ def test_backdoor():
     sess.open(SSH_HOST, secret=BACKDOOR_SECRET, auth=(SSH_USER, SSH_PASS))
     sess.send("uname -a")
 
+def test_repave():
+    sess = backdoor.Session()
+    sess.open(SSH_HOST, secret=BACKDOOR_SECRET, auth=(SSH_USER, SSH_PASS))
+
+    #sess.do("repave", config="")
+
 def test_reload():
     sess = backdoor.Session()
     sess.open(SSH_HOST, secret=BACKDOOR_SECRET, auth=(SSH_USER, SSH_PASS))

@@ -6,7 +6,7 @@ import os
 
 from shakedown import ssh
 
-SSH_HOST = os.environ.get("SSH_HOST", "veos-2")
+SSH_HOST = os.environ.get("SSH_HOST", "veos3")
 SSH_USER = os.environ.get("SSH_USER", "admin")
 SSH_PASS = os.environ.get("SSH_PASS", "")
 SSH_ROOT_PASS = os.environ.get("SSH_ROOT_PASS", "root")
@@ -40,16 +40,17 @@ def test_reopen():
 
 def test_background():
     with ssh.Background(SSH_HOST, (SSH_USER, SSH_PASS), "bash sleep 5; uname -a") as bk:
-        print("started in background...")
+        pass
 
     for result in bk:
         print(result)
 
 
 def test_input():
+    message = "test_input_string"
     sess = ssh.Session()
     sess.open(SSH_HOST, auth=(SSH_USER, SSH_PASS))
-    sess.send("ssh -l shakedown localhost", prompt=r'password:', input="shakedown")
-    sess.send("logout")
-    # prove we were incepted
-    sess.send("show version")
+    sess.send("bash")
+    response = sess.send("read -p \"test_input:\" TEST_INPUT && echo $TEST_INPUT", prompt=r'test_input:', input=message)
+    
+    assert response.splitlines()[-1] == message
