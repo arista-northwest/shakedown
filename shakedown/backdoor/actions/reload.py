@@ -18,10 +18,12 @@ def run(session, save=False, waitfor=0):
         while session.alive:
             pass
     except ssh.SshSessionClosedException:
-        time.sleep(10)
+        pass
     except pexpect.EOF:
-        time.sleep(10)
+        pass
 
+    time.sleep(30)
+    
     session.close()
 
     if waitfor > 0:
@@ -51,7 +53,7 @@ def run(session, save=False, waitfor=0):
                 pass
             except pexpect.TIMEOUT:
                 pass
-            except eapi.EapiHttpError:
+            except ssh.SshSessionClosedException:
                 pass
 
             sys.stdout.write(".")
