@@ -94,7 +94,7 @@ class SessionManager:
 
     def _handle_notifications(self, data):
         """handler is blocking should return immediately"""
-
+        #print("Called _handle_notifications...")
         endpoint = data["key"]
         config = data["value"]
         action = data["action"]
@@ -125,11 +125,11 @@ class SessionManager:
         filtered = []
 
         patterns = [re.compile(pat) for pat in to_list(patterns)]
-
+        #print(self._sessions)
         for _, session in self._sessions.items():
             
             keys = [session.endpoint] + session.tags
-
+            #print("KEYS:", keys)
             for pattern in patterns:
                 for _ in filter(pattern.match, keys):
                     if session not in filtered:
@@ -149,16 +149,19 @@ class SessionManager:
         for hostname in defunct:
             del self._sessions[hostname]
 
-    def send(self, filter, commands, callback=None, **kwargs):
+    def send(self, filt, commands, callback=None, **kwargs):
         """This function is monkey-patched by a fixture, so we need to maintain
         access to the 'real' :meth:`SessionManager._send` method for internal
         use"""
-        endpoints = self.filter(filter)
+        endpoints = self.filter(filt)
         return _send(endpoints, commands, callback, **kwargs)
     
     execute = send
 
 def _send(endpoints, commands, callback=None, **kwargs):
+
+    if not endpoints:
+        raise ValueError("Empty list of endpoints: %s" % str(endpoints))
 
     responses = []
     
