@@ -28,18 +28,18 @@ setup(
         'git+https://github.com/arista-northwest/eapi-py.git#egg=eapi-py'
     ],
     install_requires=[
-        "pytest==5.4.1",
-        "PyYAML==5.3.1",
-        "pexpect==4.8.0",
-        "Jinja2==2.11.2",
-        "sh==1.12.14",
-        "mistune==0.8.4",
-        "tinydb==3.15.2",
-        "tinymongo==0.2.0",
-        "pandas==1.0.3",
-        "matplotlib==3.2.1",
-        "numpy==1.18.2",
-        "eapi-py"
+        "pytest>=5.4.1",
+        "PyYAML>=5.3.1",
+        "pexpect>=4.8.0",
+        "Jinja2>=2.11.2",
+        "sh>=1.12.14",
+        "mistune>=0.8.4",
+        "tinydb>=3.15.2",
+        "tinymongo>=0.2.0",
+        "pandas>=1.0.3",
+        "matplotlib>=3.2.1",
+        "numpy>=1.18.2",
+        "eapi-py==0.4.1"
     ],
     classifiers = [
         "Development Status :: 3 - Alpha",

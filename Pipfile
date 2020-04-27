@@ -1,0 +1,28 @@
+[[source]]
+name = "pypi"
+url = "https://pypi.org/simple"
+verify_ssl = true
+
+[dev-packages]
+shakedown = {path = ".", editable = true, extras = ["tests"]}
+autopep8="*"
+coverage="*"
+Sphinx="*"
+
+[packages]
+pytest="*"
+PyYAML="*"
+pexpect="*"
+Jinja2="*"
+sh="*"
+mistune="*"
+tinydb="*"
+tinymongo="*"
+pandas="*"
+matplotlib="*"
+numpy="*"
+nest_asyncio="*"
+eapi-py="==0.4.1"
+
+[requires]
+python_version = "3.7"
