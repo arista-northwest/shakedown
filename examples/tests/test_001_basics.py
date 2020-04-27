@@ -14,7 +14,7 @@ settings:
 import pytest
 import random
 import string
-
+import eapi
 from pprint import pprint
 
 
