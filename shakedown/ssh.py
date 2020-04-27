@@ -33,7 +33,18 @@ PROMPT_RE = [
     r"\-?(?:bash)?(?:\-\d\.\d)? ?[>#\$] ?$"
 ]
 
-ANSI_ESCAPE_RE = r'\x1B\[[0-?]*[ -/]*[@-~]'
+ANSI_ESCAPE_RE = re.compile(r'''
+    \x1B  # ESC
+    (?:   # 7-bit C1 Fe (except CSI)
+        [@-Z\\-_]
+    |     # or [ for CSI, followed by a control sequence
+        \[
+        [0-?]*  # Parameter bytes
+        [ -/]*  # Intermediate bytes
+        [@-~]   # Final byte
+    )
+''', re.VERBOSE)
+#re.compile(r'\x1B\[[0-?]*[ -/]*[@-~]', re.I)
 
 SSH_OPTIONS = [
     "StrictHostKeyChecking=no"
@@ -53,7 +64,10 @@ class SshTimeoutException(SshException):
 
 def _decode(text):
     """cleanup responses"""
-    return re.sub(ANSI_ESCAPE_RE, "", text.decode("utf-8")).rstrip()
+    decoded = text.decode()
+    escaped = ANSI_ESCAPE_RE.sub("", decoded)
+    stripped = escaped.rstrip()
+    return stripped
 
 class Session:
 
@@ -64,7 +78,7 @@ class Session:
         self.auth = ("admin", "")
 
         # pexpect child object
-        self.child = None
+        self._child = None
 
         self.prompt = None
         self.motd = None
@@ -89,29 +103,30 @@ class Session:
 
     @property
     def alive(self):
-        return self.child.isalive()
+        return self._child.isalive()
 
     @property
     def closed(self):
         return not self.opened
 
-    def _decode(self, text):
-        """cleanup responses"""
-        return re.sub(ANSI_ESCAPE_RE, "", text.decode("utf-8")).rstrip()
+    # def _decode(self, text):
+    #     """cleanup responses"""
+    #     print("DECODING: ", text)
+    #     return re.sub(ANSI_ESCAPE_RE, "", text.decode("utf-8")).rstrip()
 
     def close(self):
         if self.opened:
             # safety check so we don't infinitely loop...
             max_retries = 5
             retries = 0
-            while self.child.isalive():
+            while self._child.isalive():
                 if retries > 0:
                     time.sleep(1)
 
                 if retries >= max_retries:
                     raise SshException("Max retries reached, session did not close.")
 
-                self.child.close(force=True)
+                self._child.close(force=True)
                 retries += 1
 
         self._opened = False
@@ -120,22 +135,25 @@ class Session:
         if not self.opened:
             self.reopen()
 
-        self.child.sendline(line)
+        self._child.sendline(line)
 
         if prompt:
-            index = self.child.expect([prompt], timeout=timeout)
+            index = self._child.expect([prompt], timeout=timeout)
             if index == 0:
-                self.child.sendline(input)
+                self._child.sendline(input)
 
         try:
-            self.child.expect(PROMPT_RE, timeout=timeout)
+            self._child.expect(PROMPT_RE, timeout=timeout)
         except pexpect.EOF:
             raise SshSessionClosedException("SSH connection has gone away")
 
-        self.prompt = _decode(self.child.after)
-
+        self.prompt = _decode(self._child.after)
+        
         # decode and delete the echoed command from the output
-        return "\n".join(_decode(self.child.before).splitlines()[1:])
+        #print("OUT>>>", self._child.before)
+        #print("WUT>>>", [_decode(o) for o in self._child.before.splitlines()])
+        response = [_decode(o) for o in self._child.before.splitlines()][1:-1]
+        return "\n".join(response)
 
     def reopen(self):
         if not self.hostaddr:
@@ -144,6 +162,9 @@ class Session:
         self.close()
         self.open(self.hostaddr, self.auth)
 
+    def open_root(self, hostaddr, password):
+        self.open(hostaddr, auth=("root", password))
+    
     def open(self, hostaddr, auth=None):
         """spawn a new SSH session"""
 
@@ -159,32 +180,32 @@ class Session:
             host=hostaddr
         )
 
-        self.child = pexpect.spawn(cmd)
+        self._child = pexpect.spawn(cmd)
 
-        index = self.child.expect(SSH_INIT_RE + PROMPT_RE)
-        self.banner = _decode(self.child.before)
+        index = self._child.expect(SSH_INIT_RE + PROMPT_RE)
+        self.banner = _decode(self._child.before)
 
         if index == 0:
-            self.child.sendline("yes")
-            index = self.child.expect(SSH_INIT_RE)
-            self.motd = _decode(self.child.before)
+            self._child.sendline("yes")
+            index = self._child.expect(SSH_INIT_RE)
+            self.motd = _decode(self._child.before)
 
         if index == 1:
-            self.child.sendline(password)
+            self._child.sendline(password)
             # prepend the prompts to ensure the index is 2
             _prompt_re = [r"$^"] * 2 + PROMPT_RE + \
                 [r"(?i)permission denied", pexpect.EOF]
-            index = self.child.expect(_prompt_re)
+            index = self._child.expect(_prompt_re)
 
             if index == len(_prompt_re) - 2:
                 raise SshException("Login failed: %s" % _prompt_re[index])
             elif index <= len(PROMPT_RE) - 1:
-                self.prompt = _decode(self.child.after) #self.child.after.decode("utf-8")
+                self.prompt = _decode(self._child.after)
 
-            self.motd = _decode(self.child.before)
+            self.motd = _decode(self._child.before)
 
         if index > 1:
-            self.motd = _decode(self.child.before)
+            self.motd = _decode(self._child.before)
 
         self._opened = True
 
@@ -196,6 +217,8 @@ class Session:
         if index == 2:
             self.send("terminal length 0")
             self.send("terminal width 32767")
+        else:
+            self.send("export TERM=dumb")
 
 def session(*args, **kwargs):
     sess = Session()
