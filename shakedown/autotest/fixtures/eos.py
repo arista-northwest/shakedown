@@ -18,7 +18,7 @@ def get_version_ssh():
 
 @pytest.fixture(scope="session")
 def reload():
-    def _reload(dut, save: bool = False, waitfor: int = 300):
+    def _reload(dut, save: bool = False, waitfor: int = 900):
         session = ssh.Session()
         session.open(dut.host, auth=dut.auth)
         if save:
@@ -41,12 +41,12 @@ def reload():
             t0 = time.time()
             while True:
                 try:
-                    session.reopen()
+                    session.open(dut.host, auth=dut.auth)
                     while True:
-                        line = "show logging last 30 seconds | i SYSTEM_RESTARTED'"
-                        output = session.send(line)
 
-                        if "System restarted" in output:
+                        line = "show logging last 5 minutes"
+                        output = session.send(line)
+                        if "SYSTEM_RESTARTED" in output:
                             sys.stdout.write("!\n")
                             sys.stdout.flush()
                             return
@@ -72,6 +72,6 @@ def reload():
                 if int(time.time() - t0) >= waitfor:
                     raise ValueError("Timeout exceeded")
 
-            time.sleep(10)
+            # time.sleep(10)
     
     return _reload
