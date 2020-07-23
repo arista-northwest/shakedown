@@ -24,9 +24,9 @@ setup(
     author_email = "jmather@arista.com",
     description = "",
     long_description = long_description,
-    dependency_links=[
-        'git+https://github.com/arista-northwest/eapi-py.git#egg=eapi-py'
-    ],
+    # dependency_links=[
+    #     'git+https://github.com/arista-northwest/eapi-py.git#egg=eapi-py'
+    # ],
     install_requires=[
         "pytest",
         "PyYAML",
