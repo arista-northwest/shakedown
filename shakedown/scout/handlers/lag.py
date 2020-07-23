@@ -24,9 +24,6 @@ import re
 """
 
 def h_members(responses):
-    #
-    # lags = responses[0]["portChannels"]
-
     members = []
     for name, data in responses[0]["portChannels"].items():
         id_ = int(re.match(r"port-channel\s*(\d+)", name, re.I).group(1))
