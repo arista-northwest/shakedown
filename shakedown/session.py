@@ -3,7 +3,7 @@
 # Arista Networks, Inc. Confidential and Proprietary.
 
 import asyncio
-import collections
+import collections.abc
 import functools
 import re
 import time
@@ -33,7 +33,7 @@ EAPI_PARAMS = [
 class SessionError(Exception):
     pass
 
-class Session(collections.MutableMapping):
+class Session(collections.abc.MutableMapping):
     def __init__(self, endpoint, tags=[], **kwargs):
 
         self.__dict__["_store"] = {
