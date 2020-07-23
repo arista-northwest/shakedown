@@ -24,7 +24,7 @@ RUN \
   pip3 install mistune && \
   pip3 install tinydb && \
   pip3 install tinymongo && \
-  pip3 install git+https://github.com/arista-northwest/eapi-py.git && \
+  pip3 install eapi-py==0.4.1 && \
   pip3 install git+https://github.com/arista-northwest/shakedown.git && \
   pip install tox
 
