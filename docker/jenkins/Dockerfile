@@ -41,7 +41,7 @@ EXPOSE 8080/tcp 50000/tcp
 USER jenkins
 
 RUN jenkins-plugin-cli --plugins \
-  git github-branch-source python jdk-tool command-launcher \
+  git github-branch-source jdk-tool command-launcher \
   bouncycastle-api filesystem_scm credentials
 
 # RUN cat /var/tmp/job-template.xml | \
