@@ -6,27 +6,27 @@ USER root
 RUN  \
   apt update && \
   apt install -y build-essential && \
-  apt install -y python3 python3-dev && \
+  apt install -y python3 python3-dev python-is-python3 && \
   apt install -y python3-pip python3-paramiko && \
-  apt install -y python-pip && \
   apt install -y git && \
   apt install -y sshpass
 
 RUN \
-  pip3 install pandas numpy matplotlib && \
-  pip3 install pexpect && \
-  pip3 install future && \
-  pip3 install pytest && \
-  pip3 install jinja2 && \
-  pip3 install pyyaml && \
-  pip3 install requests && \
-  pip3 install sh && \
-  pip3 install mistune && \
-  pip3 install tinydb && \
-  pip3 install tinymongo && \
-  pip3 install eapi-py==0.4.1 && \
-  pip3 install git+https://github.com/arista-northwest/shakedown.git && \
-  pip install tox
+  pip3 install --break-system-packages pandas numpy matplotlib && \
+  pip3 install --break-system-packages pexpect && \
+  pip3 install --break-system-packages future && \
+  pip3 install --break-system-packages pytest && \
+  pip3 install --break-system-packages jinja2 && \
+  pip3 install --break-system-packages requests && \
+  pip3 install --break-system-packages sh && \
+  pip3 install --break-system-packages mistune && \
+  pip3 install --break-system-packages tinydb && \
+  pip3 install --break-system-packages tinymongo && \
+  pip3 install --break-system-packages eapi-py==0.4.1 && \
+  pip3 install --break-system-packages git+https://github.com/arista-northwest/shakedown.git
+  # && \
+ RUN \
+  pip3 install --break-system-packages tox
 
 # COPY bin/sdtest /usr/local/bin/sdtest
 # RUN chmod +x /usr/local/bin/sdtest
@@ -40,7 +40,7 @@ EXPOSE 8080/tcp 50000/tcp
 
 USER jenkins
 
-RUN /usr/local/bin/install-plugins.sh \
+RUN jenkins-plugin-cli --plugins \
   git github-branch-source python jdk-tool command-launcher \
   bouncycastle-api filesystem_scm credentials
 
