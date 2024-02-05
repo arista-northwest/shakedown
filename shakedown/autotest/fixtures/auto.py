@@ -37,9 +37,9 @@ def _auto_output_dir(request):
         mkdir(output_dir)
 
 @pytest.fixture(scope="function", autouse=True)
-def _auto_monkeypatch_send(duts, dut, sdut, request):
+def _auto_monkeypatch_send(duts, request):
 
-    def _yamlify(response):
+    def _to_yaml(response):
         doc = ['host: {}'.format(response.session.hostaddr)]
         
         doc.append('commands:')
@@ -60,10 +60,10 @@ def _auto_monkeypatch_send(duts, dut, sdut, request):
         if path in report_store:
             sdreport = report_store[path]
             section = sdreport.get_section(nodeid)
-            text = _yamlify(response)
+            text = _to_yaml(response)
             section.append("codeblock", text)
 
-    for obj in [dut, sdut, duts]:
+    for obj in [duts]:
         def _rollback():
             obj.callback = None
         request.addfinalizer(_rollback)
