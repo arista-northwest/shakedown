@@ -2,13 +2,13 @@ version: '3.7'
 services:
   jenkins:
     build: .
-    environment:
-      JAVA_OPTS: "-Djava.awt.headless=true -Djenkins.install.runSetupWizard=false"
     ports:
-      - "50000:50000"
-      - "8080:8080"
+      - 50000:50000
+      - 8080:8080
+    environment:
+      JENKINS_ADMIN_PASSWORD: none
     volumes:
-      - ./jenkins_home:/var/jenkins_home
+      - ./casc:/var/jenkins_home/casc
       - ../../:/shakedown
       - ../../examples:/testplan
       - ../../examples:/reports

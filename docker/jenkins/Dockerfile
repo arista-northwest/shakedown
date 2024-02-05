@@ -5,34 +5,40 @@ USER root
 
 RUN  \
   apt update && \
-  apt install -y build-essential && \
-  apt install -y python3 python3-dev python-is-python3 && \
-  apt install -y python3-pip python3-paramiko && \
-  apt install -y git && \
-  apt install -y sshpass
+  apt install -y build-essential \
+    python3 \
+    python3-dev \
+    python-is-python3 \
+    python3-pip \
+    python3-paramiko \
+    git \
+    sshpass
 
 RUN \
-  pip3 install --break-system-packages pandas numpy matplotlib && \
-  pip3 install --break-system-packages pexpect && \
-  pip3 install --break-system-packages future && \
-  pip3 install --break-system-packages pytest && \
-  pip3 install --break-system-packages jinja2 && \
-  pip3 install --break-system-packages requests && \
-  pip3 install --break-system-packages sh && \
-  pip3 install --break-system-packages mistune && \
-  pip3 install --break-system-packages tinydb && \
-  pip3 install --break-system-packages tinymongo && \
-  pip3 install --break-system-packages eapi-py==0.4.1 && \
-  pip3 install --break-system-packages git+https://github.com/arista-northwest/shakedown.git
-  # && \
- RUN \
-  pip3 install --break-system-packages tox
+  pip3 install --break-system-packages \
+    pandas \
+    numpy \
+    matplotlib \
+    pexpect  \
+    future \
+    pytest \
+    jinja2 \
+    requests \
+    sh \
+    mistune \
+    tinydb \
+    tinymongo \
+    eapi-py==0.4.1 \
+    tox
+    # \
+    #git+https://github.com/arista-northwest/shakedown.git
+      
 
 # COPY bin/sdtest /usr/local/bin/sdtest
 # RUN chmod +x /usr/local/bin/sdtest
 
 # COPY job-template.xml /var/jenkins_home/jobs/Shakedown-Template/config.xml
-COPY job-template.xml /var/tmp/job-template.xml
+# COPY job-template.xml /var/tmp/job-template.xml
 
 VOLUME ["/testplan", "/shakedown", "/reports"]
 
@@ -42,12 +48,9 @@ USER jenkins
 
 RUN jenkins-plugin-cli --plugins \
   git github-branch-source jdk-tool command-launcher \
-  bouncycastle-api filesystem_scm credentials
-
-# RUN cat /var/tmp/job-template.xml | \
-# java -jar /var/jenkins_home/war/WEB-INF/jenkins-cli.jar \
-#   -s http://localhost:8080/ create-job Shakedown-Template
+  bouncycastle-api filesystem_scm credentials configuration-as-code job-dsl
 
 ENV PYTHONPATH /shakedown
 ENV PYTHONDONTWRITEBYTECODE 1
-ENV JAVA_OPTS "-Djava.awt.headless=true -Djenkins.install.runSetupWizard=false"
+ENV CASC_JENKINS_CONFIG=/var/jenkins_home/casc
+ENV JAVA_OPTS "-Djava.awt.headless=true -Djenkins.install.runSetupWizard=false -Dsun.net.inetaddr.ttl=0"
