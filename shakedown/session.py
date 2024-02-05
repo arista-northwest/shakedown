@@ -10,6 +10,8 @@ import time
 
 import eapi
 
+from typing import Optional
+
 from shakedown.util import to_list, merge
 from shakedown.config import config
 
@@ -119,7 +121,7 @@ class SessionManager:
         #self._sessions[endpoint] = dict(**config)
         self._sessions[endpoint] = Session(endpoint, **config)
 
-    def filter(self, patterns):
+    def filter(self, patterns: list[str]) -> list[Session]:
         """filter connections for hostname or tags"""
 
         filtered = []
@@ -137,8 +139,12 @@ class SessionManager:
 
         return filtered #list(filtered.items())
 
-    def filter_one(self, pattern):
-        return self.filter(pattern)[0]
+    def filter_one(self, pattern: str) -> Optional[Session]:
+        sessions = self.filter(pattern)
+        if len(sessions) > 0:
+            return sessions[0]
+        
+        return None
 
     def remove(self, endpoints):
         endpoints = to_list(endpoints)
