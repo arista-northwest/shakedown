@@ -8,6 +8,8 @@ import os
 import functools
 import time
 
+from typing import Optional
+
 from shakedown.util import to_list
 from shakedown import ssh
 from shakedown.session import sessions
@@ -68,8 +70,15 @@ class DutManager():
     def __init__(self, callback=None):
         self.callback = callback
 
-    def select(self, dut):
-        return Dut(sessions.filter_one(dut), self.callback)
+    def get(self, pattern: str) -> Optional[Dut]:
+        sess = sessions.filter_one(pattern)
+        
+        if sess:
+            return Dut(sess, self.callback)
+        
+        return None
+    
+    select = get
 
     @record
     def send(self, patterns, commands, **kwargs):
