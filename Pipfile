@@ -25,4 +25,4 @@ nest_asyncio="*"
 eapi-py="==0.4.1"
 
 [requires]
-python_version = "3.7"
+python_version = "3.10"
