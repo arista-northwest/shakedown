@@ -38,11 +38,15 @@ connections = duts
 
 @pytest.fixture(scope="module")
 def dut(duts):
-    return duts.select(r"dut")
+    dut = duts.select(r"dut")
+    if not dut:
+        raise ValueError("Tag 'dut' is not defined")
 
 @pytest.fixture(scope="module")
 def sdut(duts):
-    return duts.select(r"sdut")
+    sdut = duts.select(r"sdut")
+    if not sdut:
+        raise ValueError("Tag 'sdut' is not defined")
 
 @pytest.fixture(scope="module")
 def testconfig(request):
