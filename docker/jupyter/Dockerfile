@@ -4,6 +4,7 @@ RUN  \
   apt update && \
   apt install -y build-essential libffi-dev && \
   apt install -y git sshpass && \
+  apt install -y iproute2 inetutils-ping && \
   apt install -y \
     python3 \
     python3-dev \
