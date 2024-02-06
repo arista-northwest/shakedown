@@ -6,8 +6,6 @@ services:
       - ../:/shakedown
       - ../examples:/testplan
       - ../examples/_reports:/reports
-    networks:
-      - shakedown
   jenkins:
     build: jenkins/
 #    environment:
@@ -20,8 +18,6 @@ services:
       - ../:/shakedown
       - ../examples:/testplan
       - ../examples/_reports:/reports
-    networks:
-      - shakedown
   jupyter:
     build: jupyter/
     ports:
@@ -32,10 +28,3 @@ services:
       - ../examples:/notebooks
     dns_search:
       - sjc.aristanetworks.com
-    networks:
-      - shakedown
-
-networks:
-  shakedown:
-    name: shakedown
-    external: true
