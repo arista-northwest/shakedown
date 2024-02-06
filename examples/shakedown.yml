@@ -5,14 +5,30 @@ vars:
     # downgrade: "flash:EOS-4.18.3.1F.swi"
 
 connections:
-  veos2:
-    auth: ["admin", ""]
+  leaf1:
+    auth: ["admin", "none"]
     transport: http
     tags: [ dut, tor ]
-  veos3:
-    tags: [ sdut, csp ]
-
-
+  leaf2:
+    auth: ["admin", "none"]
+    transport: http
+    tags: [ tor ]
+  leaf3:
+    auth: ["admin", "none"]
+    transport: http
+    tags: [ tor ]
+  leaf4:
+    auth: ["admin", "none"]
+    transport: http
+    tags: [ tor ]
+  spine1:
+    auth: ["admin", "none"]
+    transport: http
+    tags: [ sdut, spine ]
+  spine2:
+    auth: ["admin", "none"]
+    transport: http
+    tags: [ spine ]
 publishers:
   mongodb:
     host: 127.0.0.1
