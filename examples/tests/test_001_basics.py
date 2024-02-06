@@ -25,13 +25,14 @@ def test_version(sessions, sdconfig, testconfig, sdreportsection):
     responses = sessions.send(r"dut", "show version")
 
     for response in responses:
+
         assert version in response[0].output, \
             "Software version should be {}".format(version)
 
-    sdreportsection.text("random link...")
-    sdreportsection.link("http://httpbin.org/",
-                         text="httpbin",
-                         title="link to httpbin")
+    # sdreportsection.text("random link...")
+    # sdreportsection.link("http://httpbin.org/",
+    #                      text="httpbin",
+    #                      title="link to httpbin")
 
 
 @pytest.mark.xfail
@@ -73,6 +74,7 @@ def test_dut(dut):
         tags: [ dut, ... ]
     """
 
+    #dut = duts.get(r"dut")
     dut.execute(["show version", "show hostname"])
     dut.configure(["username tommy nopassword"])
 
