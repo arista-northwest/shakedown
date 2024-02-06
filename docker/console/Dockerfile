@@ -11,6 +11,27 @@ RUN  \
     git \
     sshpass
 
+
+RUN \
+  pip3 install --user \
+    nest_asyncio \
+    tornado \
+    jupyter \
+    pandas \
+    numpy \
+    matplotlib \
+    pexpect  \
+    future \
+    pytest \
+    jinja2 \
+    requests \
+    sh \
+    mistune \
+    tinydb \
+    tinymongo \
+    eapi-py==0.4.1 \
+    tox
+
 VOLUME ["/shakedown", "/testplan", "/reports"]
 
 COPY init.sh /init.sh
@@ -18,6 +39,7 @@ COPY init.sh /init.sh
 WORKDIR /testplan
 
 ENV PYTHONDONTWRITEBYTECODE 1
+ENV PATH /root/.local/bin:$PATH
 
 # ENTRYPOINT ["/bin/bash"]
 ENTRYPOINT ["/bin/sh", "/init.sh"]

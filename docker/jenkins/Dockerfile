@@ -15,7 +15,7 @@ RUN  \
     sshpass
 
 RUN \
-  pip3 install --break-system-packages \
+  pip3 install --user \
     pandas \
     numpy \
     matplotlib \

@@ -18,7 +18,6 @@ services:
       - ../:/shakedown
       - ../examples:/testplan
       - ../examples/_reports:/reports
-
   jupyter:
     build: jupyter/
     ports:
@@ -27,3 +26,5 @@ services:
     volumes:
       - ../:/shakedown
       - ../examples:/notebooks
+    dns_search:
+      - sjc.aristanetworks.com
