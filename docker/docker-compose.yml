@@ -1,11 +1,16 @@
 version: '3.7'
+
 services:
   console:
-    build: console/
+    build:
+      context: ../
+      dockerfile: docker/console/Dockerfile
     volumes:
-      - ../:/shakedown
-      - ../examples:/testplan
-      - ../examples/_reports:/reports
+        - ..:/shakedown
+    #   - examples:/testplan
+    #   - examples/_reports:/reports
+    networks:
+      - shakedown
   jenkins:
     build: jenkins/
 #    environment:
@@ -28,3 +33,8 @@ services:
       - ../examples:/notebooks
     dns_search:
       - sjc.aristanetworks.com
+
+networks:
+  shakedown:
+    name: shakedown
+    external: true

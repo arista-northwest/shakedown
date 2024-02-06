@@ -11,35 +11,24 @@ RUN  \
     git \
     sshpass
 
+RUN \
+  pip install --user -U pipenv
+
+ENV PATH /root/.local/bin:$PATH
+ENV PYTHONDONTWRITEBYTECODE 1
+ENV LANG en_US.UTF-8
+
+ADD . /shakedown
+WORKDIR /shakedown
 
 RUN \
-  pip3 install --user \
-    nest_asyncio \
-    tornado \
-    jupyter \
-    pandas \
-    numpy \
-    matplotlib \
-    pexpect  \
-    future \
-    pytest \
-    jinja2 \
-    requests \
-    sh \
-    mistune \
-    tinydb \
-    tinymongo \
-    eapi-py==0.4.1 \
-    tox
+  pipenv install --dev -e .
+  # && \
+  #echo "source $(pipenv --env)/bin/activate" >> ~/.bashrc
 
 VOLUME ["/shakedown", "/testplan", "/reports"]
 
-COPY init.sh /init.sh
+#WORKDIR /testplan
 
-WORKDIR /testplan
+ENTRYPOINT [ "sleep", "infinity" ]
 
-ENV PYTHONDONTWRITEBYTECODE 1
-ENV PATH /root/.local/bin:$PATH
-
-# ENTRYPOINT ["/bin/bash"]
-ENTRYPOINT ["/bin/sh", "/init.sh"]
