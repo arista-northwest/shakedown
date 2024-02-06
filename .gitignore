@@ -169,3 +169,5 @@ src/
 
 docker/jenkins/jenkins_home
 examples/_reports
+containerlab/
+ansible/
