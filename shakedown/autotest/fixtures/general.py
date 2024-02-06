@@ -41,12 +41,14 @@ def dut(duts):
     dut = duts.select(r"dut")
     if not dut:
         raise ValueError("Tag 'dut' is not defined")
+    return dut
 
 @pytest.fixture(scope="module")
 def sdut(duts):
     sdut = duts.select(r"sdut")
     if not sdut:
         raise ValueError("Tag 'sdut' is not defined")
+    return sdut
 
 @pytest.fixture(scope="module")
 def testconfig(request):
