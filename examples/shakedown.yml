@@ -36,6 +36,6 @@ publishers:
 
 tests:
   test_001_basics:
-    software_version: 4.20.5F
+    software_version: 4.31.1.1F
   
 scout:
