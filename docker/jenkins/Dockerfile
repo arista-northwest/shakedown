@@ -12,7 +12,11 @@ RUN  \
     python3-pip \
     python3-paramiko \
     git \
-    sshpass
+    sshpass \
+    iputils-ping \
+    dnsutils \
+    nmap \
+    vim
 
 RUN \
   pip3 install --break-system-packages --user \

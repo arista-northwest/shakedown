@@ -9,7 +9,12 @@ RUN  \
     python3-pip \
     python3-paramiko \
     git \
-    sshpass
+    sshpass \
+    iputils-ping \
+    dnsutils \
+    nmap \
+    vim
+
 
 
 RUN \
