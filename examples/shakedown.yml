@@ -5,10 +5,18 @@ vars:
     # downgrade: "flash:EOS-4.18.3.1F.swi"
 
 connections:
+  ck326:
+    auth: ["admin", "none"]
   leaf1:
     auth: ["admin", "none"]
     transport: http
     tags: [ dut, tor ]
+  ck325:
+    auth: ["admin", "none"]
+    transport: http
+    tags: [ sdut, csp ]
+
+
   leaf2:
     auth: ["admin", "none"]
     transport: http
@@ -36,6 +44,6 @@ publishers:
 
 tests:
   test_001_basics:
-    software_version: 4.20.5F
+    software_version: 4.28.2F
   
 scout:

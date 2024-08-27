@@ -15,10 +15,9 @@ import pytest
 import random
 import string
 import eapi
-from pprint import pprint
 
 
-def test_version(sessions, sdconfig, testconfig, sdreportsection):
+def test_version(sessions, testconfig, sdreportsection):
     """Autotest will scan the class for any methods that start with 'test'."""
 
     version = testconfig["software_version"]
@@ -64,13 +63,7 @@ def test_config(sessions):
 
 
 def test_dut(dut):
-    """The `dut` can still be used directly, if the tag is assigned properly \
-    to a connection
-
-    connections:
-      veos-1:
-        ...
-        tags: [ dut, ... ]
+    """
     """
 
     dut.execute(["show version", "show hostname"])
@@ -81,12 +74,6 @@ def test_sdut(sdut):
     """The `sdut` can still be used directly if the tag exists"""
     sdut.execute(["show version"])
     sdut.configure(["username tumi nopassword"])
-
-
-@pytest.mark.xfail
-def test_failure():
-    """Force a failure"""
-    assert True == False, "True does not equal False!"
 
 
 def test_until(dut):
@@ -105,6 +92,7 @@ def test_until(dut):
 #     backdoor.reload(waitfor=300)
 
 def test_eos_fixture(get_version_ssh, dut):
+    """"""
     print(get_version_ssh(dut))
 
 def test_reload(reload, dut):
