@@ -63,11 +63,11 @@ def _auto_monkeypatch_send(duts, request):
             text = _to_yaml(response)
             section.append("codeblock", text)
 
-    for obj in [duts]:
-        def _rollback():
-            obj.callback = None
-        request.addfinalizer(_rollback)
-        obj.callback = _callback
+    # unset callback and end of function
+    def _rollback():
+        duts.callback = None
+    request.addfinalizer(_rollback)
+    duts.callback = _callback
 
 @pytest.fixture(scope="module", autouse=True)
 def _auto_rollback(sessions, request, sdconfig):
