@@ -1,7 +1,8 @@
 import json
 import os
 import codecs
-from datetime import datetime
+import datetime
+
 from getpass import getuser
 from functools import partial
 from collections import OrderedDict
@@ -64,7 +65,7 @@ class Report:
             "name": name,
             "title": title,
             "description": description,
-            "created_at": str(datetime.utcnow()),
+            "created_at": str(datetime.datetime.now(datetime.UTC)),
             "created_by": getuser()
         }
 

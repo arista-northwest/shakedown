@@ -75,7 +75,7 @@ def _auto_rollback(sessions, request, sdconfig):
     if not sdconfig["settings"].get("auto_rollback"):
         return
 
-    now = datetime.datetime.utcnow().strftime('%Y%m%d%H%M%S')
+    now = datetime.datetime.now(datetime.UTC).strftime('%Y%m%d%H%M%S')
     backup = 'flash:snapshot-config-{}'.format(now)
 
     def _rollback():
