@@ -43,8 +43,8 @@ COPY init.sh /init.sh
 
 WORKDIR /testplan
 
-ENV PYTHONDONTWRITEBYTECODE 1
-ENV PATH /root/.local/bin:$PATH
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV PATH=/root/.local/bin:$PATH
 
 # ENTRYPOINT ["/bin/bash"]
 ENTRYPOINT ["/bin/sh", "/init.sh"]

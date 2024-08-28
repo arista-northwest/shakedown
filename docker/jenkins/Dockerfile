@@ -54,7 +54,7 @@ RUN jenkins-plugin-cli --plugins \
   git github-branch-source jdk-tool command-launcher \
   bouncycastle-api filesystem_scm credentials configuration-as-code job-dsl
 
-ENV PYTHONPATH /shakedown
-ENV PYTHONDONTWRITEBYTECODE 1
+ENV PYTHONPATH=/shakedown
+ENV PYTHONDONTWRITEBYTECODE=1
 ENV CASC_JENKINS_CONFIG=/var/jenkins_home/casc
-ENV JAVA_OPTS "-Djava.awt.headless=true -Djenkins.install.runSetupWizard=false -Dsun.net.inetaddr.ttl=0"
+ENV JAVA_OPTS="-Djava.awt.headless=true -Djenkins.install.runSetupWizard=false -Dsun.net.inetaddr.ttl=0"

@@ -1,10 +1,17 @@
 services:
   console:
+    image: shakedown-console:latest
     build: console/
+    container_name: shakedown-console
     volumes:
       - ../:/shakedown
       - ../examples:/testplan
       - ../examples/_reports:/reports
+    
+    
+    # networks:
+    #   - default
+    #   - simple_mgmt
   jenkins:
     build: jenkins/
 #    environment:
@@ -27,3 +34,7 @@ services:
       - ../examples:/notebooks
     dns_search:
       - sjc.aristanetworks.com
+
+
+# networks:
+#   simple_mgmt:

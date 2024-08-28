@@ -40,7 +40,7 @@ EXPOSE 8787/tcp 8888/tcp
 
 WORKDIR /notebooks
 
-ENV PYTHONDONTWRITEBYTECODE 1
-ENV PATH /root/.local/bin:$PATH
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV PATH=/root/.local/bin:$PATH
 
 ENTRYPOINT ["/bin/sh", "/init.sh"]
