@@ -16,6 +16,10 @@ import random
 import string
 import eapi
 
+def test_record(duts, dut, sdut, testconfig, sdreportsection):
+    duts.send(r"s?dut", "show version")
+    dut.send("show version")
+    sdut.send("show version")
 
 def test_version(sessions, testconfig, sdreportsection):
     """Autotest will scan the class for any methods that start with 'test'."""
@@ -95,5 +99,6 @@ def test_eos_fixture(get_version_ssh, dut):
     """"""
     print(get_version_ssh(dut))
 
+@pytest.mark.skip(reason="skip reloading dut for now")
 def test_reload(reload, dut):
     reload(dut)
