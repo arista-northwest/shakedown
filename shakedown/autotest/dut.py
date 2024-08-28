@@ -2,12 +2,6 @@
 # Copyright (c) 2018 Arista Networks, Inc.  All rights reserved.
 # Arista Networks, Inc. Confidential and Proprietary.
 
-import pexpect
-import tempfile
-import os
-import functools
-import time
-
 from typing import Optional
 
 from shakedown.util import to_list
@@ -17,7 +11,6 @@ from shakedown.session import sessions
 def record(func):
     def wrapper(*args, **kwargs):
         callback = args[0].callback
-
         responses = func(*args, **kwargs)
         if callback:
             for resp in to_list(responses):
@@ -80,9 +73,8 @@ class DutManager():
     
     select = get
 
-    @record
-    def send(self, patterns, commands, **kwargs):
-        return sessions.send(patterns, commands, **kwargs)
+    def send(self, patterns, commands, *args, **kwargs):
+        return self.get(patterns).send(commands, *args, **kwargs)
     
     execute = execute_until = send
     
