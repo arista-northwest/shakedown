@@ -30,30 +30,29 @@ def sessions():
 def scout():
     return scout_
 
-@pytest.fixture(scope="function")
+@pytest.fixture(scope="module")
 def duts(request):
     return DutManager()
 
 connections = duts
 
-@pytest.fixture(scope="function")
+@pytest.fixture(scope="module")
 def dut(duts):
     dut = duts.select(r"dut")
     if not dut:
         raise ValueError("Tag 'dut' is not defined")
     
-    print(f"DUT: {dut.session.endpoint} CB: {dut.callback}")
-    dut.callback = duts.callback
+    # dut.callback = duts.callback
     return dut
 
-@pytest.fixture(scope="function")
+@pytest.fixture(scope="module")
 def sdut(duts):
     sdut = duts.select(r"sdut")
     
     if not sdut:
         raise ValueError("Tag 'sdut' is not defined")
     
-    sdut.callback = duts.callback
+    # sdut.callback = duts.callback
     return sdut
 
 @pytest.fixture(scope="module")

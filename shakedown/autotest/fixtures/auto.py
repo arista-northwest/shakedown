@@ -37,7 +37,7 @@ def _auto_output_dir(request):
         mkdir(output_dir)
 
 @pytest.fixture(scope="function", autouse=True)
-def _auto_monkeypatch_send(duts, request):
+def _auto_monkeypatch_send(duts, dut, sdut, request):
 
     def _to_yaml(response):
         doc = ['host: {}'.format(response.session.hostaddr)]
@@ -63,11 +63,17 @@ def _auto_monkeypatch_send(duts, request):
             text = _to_yaml(response)
             section.append("codeblock", text)
 
+    def _nothing(response): ...
     # unset callback and end of function
     def _rollback():
-        duts.callback = None
+        duts.callback = _nothing
+        dut.callback = _nothing
+        sdut.callback = _nothing
+
     request.addfinalizer(_rollback)
     duts.callback = _callback
+    dut.callback = _callback
+    sdut.callback = _callback
 
 @pytest.fixture(scope="module", autouse=True)
 def _auto_rollback(sessions, request, sdconfig):
