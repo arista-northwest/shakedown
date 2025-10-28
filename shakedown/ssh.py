@@ -152,8 +152,8 @@ class Session:
         # decode and delete the echoed command from the output
         #print("OUT>>>", self._child.before)
         #print("WUT>>>", [_decode(o) for o in self._child.before.splitlines()])
-        response = [_decode(o) for o in self._child.before.splitlines()][1:-1]
-        return "\n".join(response)
+        response = [_decode(o) for o in self._child.before.splitlines()][1:]
+        return "\n".join(response).strip()
 
     def reopen(self):
         if not self.hostaddr:
